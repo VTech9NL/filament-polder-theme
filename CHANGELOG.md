@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.3.3 - 2026-11-06
+
+- In light mode, the page content now uses gray-100 behind white sections. Dark mode keeps its existing colours.
+
 ## v0.3.2 - 2026-10-22
 
 - The flat centre button's label now lines up with the other labels in the mobile bar. Before, it sat 6px lower.

@@ -91,6 +91,14 @@
         }
     }
 
+    html:not(.dark) .fi-main-ctn {
+        background-color: var(--gray-100);
+    }
+
+    html:not(.dark) .fi-section:not(.fi-section-not-contained, .fi-aside, .fi-secondary) {
+        background-color: var(--polder-theme-surface);
+    }
+
     .fi-main {
         @apply px-4 pt-0 pb-4;
     }
