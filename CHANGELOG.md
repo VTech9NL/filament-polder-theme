@@ -1,8 +1,8 @@
 # Changelog
 
-## v0.3.3 - 2026-11-06
+## v0.3.4 - 2026-11-07
 
-- In light mode, the page content now uses gray-100 behind white sections. Dark mode keeps its existing colours.
+- Reverts v0.3.3. The light page content is white again, as in v0.3.2.
 
 ## v0.3.2 - 2026-10-22
 
