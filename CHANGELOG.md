@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.3.5 - 2026-11-07
+
+- Light mode now has three levels, like dark mode: a darker ground (frame and sidebar), a light gray content card, and white sections, tables and stat cards with a stronger outline. Before, the card and the sections were both white.
+- The active sidebar item in light mode is now white with an outline, and hover states use a transparent tint, so they stay visible on the darker ground.
+- New settings: `--polder-theme-track` and `--polder-theme-hover`. In light mode, `--polder-theme-raised` and `--polder-theme-raised-ring` now have values too.
+- Dark mode keeps its existing colours.
+
 ## v0.3.4 - 2026-11-07
 
 - Reverts v0.3.3. The light page content is white again, as in v0.3.2.

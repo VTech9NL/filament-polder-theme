@@ -14,10 +14,14 @@
         --radius-md: var(--polder-theme-radius-md);
         --radius-lg: var(--polder-theme-radius-lg);
         --radius-xl: var(--polder-theme-radius-xl);
-        --polder-theme-ground: var(--gray-50);
-        --polder-theme-surface: var(--color-white);
-        --polder-theme-surface-ring: color-mix(in oklab, var(--gray-950) 5%, transparent);
-        --polder-theme-rule: color-mix(in oklab, var(--gray-200) 50%, transparent);
+        --polder-theme-ground: color-mix(in oklab, var(--gray-100) 50%, var(--gray-200));
+        --polder-theme-surface: var(--gray-50);
+        --polder-theme-surface-ring: color-mix(in oklab, var(--gray-950) 6%, transparent);
+        --polder-theme-raised: var(--color-white);
+        --polder-theme-raised-ring: color-mix(in oklab, var(--gray-950) 10%, transparent);
+        --polder-theme-track: color-mix(in oklab, var(--gray-200) 70%, transparent);
+        --polder-theme-hover: color-mix(in oklab, var(--gray-950) 5%, transparent);
+        --polder-theme-rule: color-mix(in oklab, var(--gray-200) 70%, transparent);
         --polder-theme-layer-order: misordered;
 
         background-color: var(--polder-theme-ground);
@@ -29,14 +33,16 @@
         --polder-theme-surface-ring: color-mix(in oklab, var(--color-white) 8%, transparent);
         --polder-theme-raised: color-mix(in oklab, var(--gray-800) 40%, var(--gray-900));
         --polder-theme-raised-ring: color-mix(in oklab, var(--color-white) 10%, transparent);
+        --polder-theme-track: var(--gray-800);
+        --polder-theme-hover: var(--gray-800);
         --polder-theme-field: color-mix(in oklab, var(--color-white) 6%, transparent);
         --polder-theme-divider: color-mix(in oklab, var(--color-white) 10%, transparent);
         --polder-theme-rule: var(--polder-theme-divider);
     }
 
-    /* Dark mode layers: ground, then the content card, then raised containers, then fields */
+    /* Layers in both modes: ground, then the content card, then raised containers (dark mode adds fields) */
 
-    .dark :is(
+    :is(
             .fi-section:not(.fi-section-not-contained, .fi-aside, .fi-secondary),
             .fi-section.fi-aside:not(.fi-section-not-contained, .fi-secondary) > .fi-section-content-ctn,
             .fi-ta-ctn,
@@ -110,6 +116,21 @@
         background-color: var(--polder-theme-ground);
     }
 
+    /* gray-100 is the ground colour in light mode, so Filament's gray-100 active and hover states would vanish */
+    html:not(.dark) .fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
+        background-color: var(--polder-theme-raised);
+        box-shadow: 0 0 0 1px var(--polder-theme-raised-ring);
+    }
+
+    html:not(.dark) .fi-sidebar :is(
+            .fi-sidebar-item.fi-sidebar-item-has-url:not(.fi-active) > .fi-sidebar-item-btn,
+            .fi-sidebar-group-dropdown-trigger-btn,
+            .fi-sidebar-database-notifications-btn,
+            .fi-tenant-menu-trigger
+        ):is(:hover, :focus-visible) {
+        background-color: var(--polder-theme-hover);
+    }
+
     .fi-sidebar-nav-groups {
         row-gap: calc(var(--spacing) * 2);
     }
@@ -135,7 +156,11 @@
     }
 
     .polder-theme-sidebar-toggle {
-        @apply -ms-1 inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200;
+        @apply -ms-1 inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200;
+
+        &:hover {
+            background-color: var(--polder-theme-hover);
+        }
 
         & svg {
             @apply size-4;
@@ -210,7 +235,8 @@
     /* Tabs: a muted track with a raised active tab */
 
     .fi-tabs:not(.fi-contained) {
-        @apply bg-gray-100 p-1 shadow-none ring-0 dark:bg-gray-800;
+        @apply p-1 shadow-none ring-0;
+        background-color: var(--polder-theme-track);
     }
 
     .fi-tabs-item.fi-active {
@@ -234,7 +260,7 @@
 
     .fi-user-menu-trigger:hover,
     .fi-user-menu-trigger.polder-theme-user-menu-trigger-active {
-        @apply bg-gray-100 dark:bg-gray-800;
+        background-color: var(--polder-theme-hover);
     }
 
     .fi-user-menu-trigger-text {
@@ -281,14 +307,18 @@
     .polder-theme-mobile-navigation-bar {
         @apply fixed z-30 flex items-center justify-around px-2;
         height: var(--polder-theme-mobile-navigation-height);
-        background-color: var(--polder-theme-surface);
+        background-color: var(--polder-theme-raised);
     }
 
     .polder-theme-mobile-navigation-floating .polder-theme-mobile-navigation-bar {
         @apply inset-x-3 rounded-full ring-1;
-        --tw-ring-color: var(--polder-theme-surface-ring);
+        --tw-ring-color: var(--polder-theme-raised-ring);
         bottom: calc(0.75rem + env(safe-area-inset-bottom));
         filter: drop-shadow(0 8px 16px rgb(0 0 0 / 0.12)) drop-shadow(0 2px 4px rgb(0 0 0 / 0.08));
+    }
+
+    .dark .polder-theme-mobile-navigation-docked .polder-theme-mobile-navigation-bar {
+        background-color: var(--polder-theme-surface);
     }
 
     .dark .polder-theme-mobile-navigation-floating .polder-theme-mobile-navigation-bar {
@@ -328,6 +358,10 @@
 
     .polder-theme-mobile-navigation-center-raised {
         @apply -mt-8 flex size-14 shrink-0 items-center justify-center rounded-full bg-primary-600 text-white ring-4 dark:bg-primary-500;
+        --tw-ring-color: var(--polder-theme-raised);
+    }
+
+    .dark .polder-theme-mobile-navigation-center-raised {
         --tw-ring-color: var(--polder-theme-surface);
     }
 
@@ -350,12 +384,8 @@
 
     .polder-theme-mobile-navigation-sheet-panel {
         @apply absolute inset-x-0 bottom-0 max-h-[85svh] overflow-y-auto rounded-t-2xl px-3 pt-3 transition-transform duration-200;
-        background-color: var(--polder-theme-surface);
-        padding-bottom: calc(1rem + env(safe-area-inset-bottom));
-    }
-
-    .dark .polder-theme-mobile-navigation-sheet-panel {
         background-color: var(--polder-theme-raised);
+        padding-bottom: calc(1rem + env(safe-area-inset-bottom));
     }
 
     .polder-theme-mobile-navigation-sheet-panel-hidden {
