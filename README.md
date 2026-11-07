@@ -258,13 +258,14 @@ Polder reads these CSS custom properties. Set them in your theme file, after the
 | `--polder-theme-radius-lg` | `0.3rem` | Medium corners: dropdowns, navigation items |
 | `--polder-theme-radius-xl` | `0.35rem` | Large corners: sections, tables, the content card |
 | `--polder-theme-inset` | `2 × --polder-theme-spacing` | Space around the content card |
-| `--polder-theme-ground` | between `gray-100` and `gray-200` / `gray-950` | Frame and sidebar background |
-| `--polder-theme-surface` | `gray-50` / between `gray-900` and `gray-950` | Content card background, and the docked mobile bar in dark mode |
-| `--polder-theme-surface-ring` | `gray-950` 6% / `white` 8% | Content card outline |
-| `--polder-theme-raised` | `white` / between `gray-800` and `gray-900` | Sections, tables, stats, dropdowns, modals, the mobile bar and sheets |
-| `--polder-theme-raised-ring` | `gray-950` 10% / `white` 10% | Outline of raised containers |
-| `--polder-theme-track` | `gray-200` 70% / `gray-800` | Tab track |
-| `--polder-theme-hover` | `gray-950` 5% / `gray-800` | Hover background of sidebar items and menu buttons |
+| `--polder-theme-ground` | `gray-50` / `gray-950` | Frame and sidebar background |
+| `--polder-theme-surface` | `white` / between `gray-900` and `gray-950` | Content card and mobile bar background |
+| `--polder-theme-surface-ring` | `gray-950` 5% / `white` 8% | Content card outline |
+| `--polder-theme-panel` | between `gray-50` and `white` / `gray-900` | Tabs and wizards that hold other panels |
+| `--polder-theme-nested` | `white` / between `gray-800` and `gray-900` | Sections and tables inside a panel |
+| `--polder-theme-raised` | almost `white` / between `gray-800` and `gray-900` | Sections, tables, stats, dropdowns, modals and sheets |
+| `--polder-theme-raised-ring` | between `gray-100` and `gray-50` / `white` 10% | Outline of panels and raised containers |
+| `--polder-theme-raised-shadow` | none / none | Optional shadow of panels and raised containers |
 | `--polder-theme-field` | dark only: `white` 6% | Form field background |
 | `--polder-theme-divider` | dark only: `white` 10% | Table row lines |
 | `--polder-theme-rule` | `gray-200` 70% / `white` 10% | Breadcrumb bar and docked bar divider |
