@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.3.6 - 2026-11-07
 
 - Light mode now has the same levels as dark mode: ground (sidebar and frame), white content card, panels, and raised containers. The panels are almost white with a very light outline, so they stay visible on the white card.
 - A section inside a tabs or wizard panel is lighter than the panel that holds it, as in dark mode.
