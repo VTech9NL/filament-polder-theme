@@ -178,6 +178,11 @@
         }
     }
 
+    /* A panel that cannot collapse on desktop has nothing for the toggle to do there, as in Filament's own topbar */
+    .polder-theme-sidebar-toggle-mobile-only {
+        @apply lg:hidden;
+    }
+
     /* The breadcrumb bar's toggle replaces Filament's own, which otherwise adds a second toggle on phones */
     .fi-layout-sidebar-toggle-btn-ctn {
         @apply hidden;

@@ -7,6 +7,7 @@
 - Contained tabs and wizards now use the panel level in both modes. In dark mode they keep their colour, `gray-900`.
 - New settings: `--polder-theme-panel`, `--polder-theme-nested` and `--polder-theme-raised-shadow`. `--polder-theme-raised` and `--polder-theme-raised-ring` now have light mode values too.
 - Dark mode keeps its colours.
+- The sidebar toggle in the breadcrumb bar now shows on desktop only when the panel can collapse its sidebar on desktop. Before, it showed on every panel and did nothing on panels that cannot collapse. On phones it always shows.
 
 ## v0.3.5 - 2026-11-07
 
