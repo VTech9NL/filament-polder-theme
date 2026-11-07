@@ -14,14 +14,15 @@
         --radius-md: var(--polder-theme-radius-md);
         --radius-lg: var(--polder-theme-radius-lg);
         --radius-xl: var(--polder-theme-radius-xl);
-        --polder-theme-ground: color-mix(in oklab, var(--gray-100) 50%, var(--gray-200));
-        --polder-theme-surface: var(--gray-50);
-        --polder-theme-surface-ring: color-mix(in oklab, var(--gray-950) 6%, transparent);
-        --polder-theme-raised: var(--color-white);
-        --polder-theme-raised-ring: color-mix(in oklab, var(--gray-950) 10%, transparent);
-        --polder-theme-track: color-mix(in oklab, var(--gray-200) 70%, transparent);
-        --polder-theme-hover: color-mix(in oklab, var(--gray-950) 5%, transparent);
-        --polder-theme-rule: color-mix(in oklab, var(--gray-200) 70%, transparent);
+        --polder-theme-ground: var(--gray-50);
+        --polder-theme-surface: var(--color-white);
+        --polder-theme-surface-ring: color-mix(in oklab, var(--gray-950) 5%, transparent);
+        --polder-theme-panel: color-mix(in oklab, var(--gray-50) 40%, var(--color-white));
+        --polder-theme-nested: var(--color-white);
+        --polder-theme-raised: color-mix(in oklab, var(--gray-50) 20%, var(--color-white));
+        --polder-theme-raised-ring: color-mix(in oklab, var(--gray-100) 40%, var(--gray-50));
+        --polder-theme-raised-shadow: 0 0 #0000;
+        --polder-theme-rule: color-mix(in oklab, var(--gray-200) 50%, transparent);
         --polder-theme-layer-order: misordered;
 
         background-color: var(--polder-theme-ground);
@@ -31,16 +32,31 @@
         --polder-theme-ground: var(--gray-950);
         --polder-theme-surface: color-mix(in oklab, var(--gray-900) 55%, var(--gray-950));
         --polder-theme-surface-ring: color-mix(in oklab, var(--color-white) 8%, transparent);
+        --polder-theme-panel: var(--gray-900);
+        --polder-theme-nested: color-mix(in oklab, var(--gray-800) 40%, var(--gray-900));
         --polder-theme-raised: color-mix(in oklab, var(--gray-800) 40%, var(--gray-900));
         --polder-theme-raised-ring: color-mix(in oklab, var(--color-white) 10%, transparent);
-        --polder-theme-track: var(--gray-800);
-        --polder-theme-hover: var(--gray-800);
+        --polder-theme-raised-shadow: 0 0 #0000;
         --polder-theme-field: color-mix(in oklab, var(--color-white) 6%, transparent);
         --polder-theme-divider: color-mix(in oklab, var(--color-white) 10%, transparent);
         --polder-theme-rule: var(--polder-theme-divider);
     }
 
-    /* Layers in both modes: ground, then the content card, then raised containers (dark mode adds fields) */
+    /*
+     * Layers in both modes, from the back to the front:
+     * ground (sidebar, frame), surface (content card), panel (tabs and wizards that hold other panels),
+     * raised (sections, tables, stats, dropdowns, modals), nested (a raised container inside a panel),
+     * and in dark mode field (inputs).
+     */
+
+    :is(
+            .fi-sc-tabs.fi-contained,
+            .fi-sc-wizard.fi-contained,
+            .fi-sc-wizard:not(.fi-contained) > .fi-sc-wizard-header
+        ) {
+        background-color: var(--polder-theme-panel);
+        box-shadow: 0 0 0 1px var(--polder-theme-raised-ring), var(--polder-theme-raised-shadow);
+    }
 
     :is(
             .fi-section:not(.fi-section-not-contained, .fi-aside, .fi-secondary),
@@ -51,7 +67,21 @@
             .fi-modal-window
         ) {
         background-color: var(--polder-theme-raised);
-        --tw-ring-color: var(--polder-theme-raised-ring);
+        box-shadow: 0 0 0 1px var(--polder-theme-raised-ring), var(--polder-theme-raised-shadow);
+    }
+
+    /* A panel inside a panel steps forward again: lighter than the panel that holds it */
+    :is(.fi-sc-tabs.fi-contained, .fi-sc-wizard.fi-contained) :is(
+            .fi-section:not(.fi-section-not-contained, .fi-aside, .fi-secondary),
+            .fi-section.fi-aside:not(.fi-section-not-contained, .fi-secondary) > .fi-section-content-ctn,
+            .fi-ta-ctn
+        ) {
+        background-color: var(--polder-theme-nested);
+    }
+
+    .fi-section:not(.fi-section-not-contained) > .fi-section-content-ctn,
+    .fi-section:not(.fi-section-not-contained) > .fi-section-content-ctn > .fi-section-footer {
+        border-color: var(--polder-theme-rule);
     }
 
     .dark .fi-modal-window :is(.fi-modal-header, .fi-modal-footer) {
@@ -116,21 +146,6 @@
         background-color: var(--polder-theme-ground);
     }
 
-    /* gray-100 is the ground colour in light mode, so Filament's gray-100 active and hover states would vanish */
-    html:not(.dark) .fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
-        background-color: var(--polder-theme-raised);
-        box-shadow: 0 0 0 1px var(--polder-theme-raised-ring);
-    }
-
-    html:not(.dark) .fi-sidebar :is(
-            .fi-sidebar-item.fi-sidebar-item-has-url:not(.fi-active) > .fi-sidebar-item-btn,
-            .fi-sidebar-group-dropdown-trigger-btn,
-            .fi-sidebar-database-notifications-btn,
-            .fi-tenant-menu-trigger
-        ):is(:hover, :focus-visible) {
-        background-color: var(--polder-theme-hover);
-    }
-
     .fi-sidebar-nav-groups {
         row-gap: calc(var(--spacing) * 2);
     }
@@ -156,15 +171,16 @@
     }
 
     .polder-theme-sidebar-toggle {
-        @apply -ms-1 inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200;
-
-        &:hover {
-            background-color: var(--polder-theme-hover);
-        }
+        @apply -ms-1 inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200;
 
         & svg {
             @apply size-4;
         }
+    }
+
+    /* A panel that cannot collapse on desktop has nothing for the toggle to do there, as in Filament's own topbar */
+    .polder-theme-sidebar-toggle-mobile-only {
+        @apply lg:hidden;
     }
 
     /* The breadcrumb bar's toggle replaces Filament's own, which otherwise adds a second toggle on phones */
@@ -235,8 +251,7 @@
     /* Tabs: a muted track with a raised active tab */
 
     .fi-tabs:not(.fi-contained) {
-        @apply p-1 shadow-none ring-0;
-        background-color: var(--polder-theme-track);
+        @apply bg-gray-100 p-1 shadow-none ring-0 dark:bg-gray-800;
     }
 
     .fi-tabs-item.fi-active {
@@ -260,7 +275,7 @@
 
     .fi-user-menu-trigger:hover,
     .fi-user-menu-trigger.polder-theme-user-menu-trigger-active {
-        background-color: var(--polder-theme-hover);
+        @apply bg-gray-100 dark:bg-gray-800;
     }
 
     .fi-user-menu-trigger-text {
@@ -307,18 +322,14 @@
     .polder-theme-mobile-navigation-bar {
         @apply fixed z-30 flex items-center justify-around px-2;
         height: var(--polder-theme-mobile-navigation-height);
-        background-color: var(--polder-theme-raised);
+        background-color: var(--polder-theme-surface);
     }
 
     .polder-theme-mobile-navigation-floating .polder-theme-mobile-navigation-bar {
         @apply inset-x-3 rounded-full ring-1;
-        --tw-ring-color: var(--polder-theme-raised-ring);
+        --tw-ring-color: var(--polder-theme-surface-ring);
         bottom: calc(0.75rem + env(safe-area-inset-bottom));
         filter: drop-shadow(0 8px 16px rgb(0 0 0 / 0.12)) drop-shadow(0 2px 4px rgb(0 0 0 / 0.08));
-    }
-
-    .dark .polder-theme-mobile-navigation-docked .polder-theme-mobile-navigation-bar {
-        background-color: var(--polder-theme-surface);
     }
 
     .dark .polder-theme-mobile-navigation-floating .polder-theme-mobile-navigation-bar {
@@ -358,10 +369,6 @@
 
     .polder-theme-mobile-navigation-center-raised {
         @apply -mt-8 flex size-14 shrink-0 items-center justify-center rounded-full bg-primary-600 text-white ring-4 dark:bg-primary-500;
-        --tw-ring-color: var(--polder-theme-raised);
-    }
-
-    .dark .polder-theme-mobile-navigation-center-raised {
         --tw-ring-color: var(--polder-theme-surface);
     }
 
@@ -384,8 +391,12 @@
 
     .polder-theme-mobile-navigation-sheet-panel {
         @apply absolute inset-x-0 bottom-0 max-h-[85svh] overflow-y-auto rounded-t-2xl px-3 pt-3 transition-transform duration-200;
-        background-color: var(--polder-theme-raised);
+        background-color: var(--polder-theme-surface);
         padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+    }
+
+    .dark .polder-theme-mobile-navigation-sheet-panel {
+        background-color: var(--polder-theme-raised);
     }
 
     .polder-theme-mobile-navigation-sheet-panel-hidden {

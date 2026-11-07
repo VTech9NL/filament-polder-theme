@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.3.6 - 2026-11-07
+
+- Light mode now has the same levels as dark mode: ground (sidebar and frame), white content card, panels, and raised containers. The panels are almost white with a very light outline, so they stay visible on the white card.
+- A section inside a tabs or wizard panel is lighter than the panel that holds it, as in dark mode.
+- Contained tabs and wizards now use the panel level in both modes. In dark mode they keep their colour, `gray-900`.
+- New settings: `--polder-theme-panel`, `--polder-theme-nested` and `--polder-theme-raised-shadow`. `--polder-theme-raised` and `--polder-theme-raised-ring` now have light mode values too.
+- Dark mode keeps its colours.
+- The sidebar toggle in the breadcrumb bar now shows on desktop only when the panel can collapse its sidebar on desktop. Before, it showed on every panel and did nothing on panels that cannot collapse. On phones it always shows.
+
 ## v0.3.5 - 2026-11-07
 
 - Light mode now has three levels, like dark mode: a darker ground (frame and sidebar), a light gray content card, and white sections, tables and stat cards with a stronger outline. Before, the card and the sections were both white.
