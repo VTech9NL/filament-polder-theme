@@ -2,7 +2,7 @@
 
 ## v0.3.7 - 2026-11-08
 
-- Refresh the header and user menu overrides for Filament 5.11.2.
+- Refresh the header override for Filament 5.11.2; retain the compatible dark-mode check for earlier Filament 5 releases.
 
 - Hide Filament’s in-sidebar collapse and expand buttons on desktop when Polder’s header toggle is present, leaving a single toggle in both sidebar states. Mobile sidebar controls stay available.
 
