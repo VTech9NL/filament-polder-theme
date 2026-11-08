@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.3.8 - 2026-11-08
+
+- Keep section header actions at the top right in narrow sections while the heading and description wrap in the remaining space.
+
 ## v0.3.7 - 2026-11-08
 
 - Refresh the header override for Filament 5.11.2; retain the compatible dark-mode check for earlier Filament 5 releases.

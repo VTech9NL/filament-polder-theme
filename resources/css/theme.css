@@ -84,6 +84,30 @@
         border-color: var(--polder-theme-rule);
     }
 
+    /* Reserve space for header actions before wrapping the heading and description. */
+    .fi-section-header,
+    .fi-section-header-content {
+        flex-wrap: nowrap;
+    }
+
+    .fi-section-header-content {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .fi-section-header-text-ctn {
+        min-width: 0;
+        width: auto;
+        flex: 1;
+        overflow-wrap: anywhere;
+    }
+
+    .fi-section-header-after-ctn {
+        flex-shrink: 0;
+        align-self: flex-start;
+        margin-inline-start: auto;
+    }
+
     .dark .fi-modal-window :is(.fi-modal-header, .fi-modal-footer) {
         background-color: var(--polder-theme-raised);
     }
