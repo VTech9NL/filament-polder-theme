@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.3.7 - 2026-11-08
+
+- Hide Filament’s in-sidebar collapse and expand buttons on desktop when Polder’s header toggle is present, leaving a single toggle in both sidebar states. Mobile sidebar controls stay available.
+
 ## v0.3.6 - 2026-11-07
 
 - Light mode now has the same levels as dark mode: ground (sidebar and frame), white content card, panels, and raised containers. The panels are almost white with a very light outline, so they stay visible on the white card.

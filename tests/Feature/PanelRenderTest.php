@@ -73,15 +73,15 @@ it('leaves the sidebar toggle to the topbar when the panel keeps it', function (
     get('/app/'.$this->team->getKey())->assertDontSee('polder-theme-sidebar-toggle');
 });
 
-it('shows the sidebar toggle on desktop only when the panel can collapse', function () {
+it('shows the sidebar toggle on desktop only when the panel can collapse', function (string $method) {
     $mobileOnly = 'polder-theme-sidebar-toggle-mobile-only';
 
     get('/app/'.$this->team->getKey())->assertSee($mobileOnly);
 
-    Filament::getPanel('app')->sidebarCollapsibleOnDesktop();
+    Filament::getPanel('app')->{$method}();
 
     get('/app/'.$this->team->getKey())->assertSee('polder-theme-sidebar-toggle')->assertDontSee($mobileOnly);
-});
+})->with(['sidebarCollapsibleOnDesktop', 'sidebarFullyCollapsibleOnDesktop']);
 
 it('leaves panels without the plugin on Filament\'s own views', function () {
     $html = get('/plain/breadcrumb-page')->assertOk()->getContent();

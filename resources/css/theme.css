@@ -146,6 +146,14 @@
         background-color: var(--polder-theme-ground);
     }
 
+    /* The header owns desktop collapsing; keep the mobile sidebar controls available. */
+    .fi-layout:has(.polder-theme-sidebar-toggle:not(.polder-theme-sidebar-toggle-mobile-only)) {
+        & .fi-sidebar-open-collapse-sidebar-btn,
+        & .fi-sidebar-close-collapse-sidebar-btn {
+            @apply lg:hidden;
+        }
+    }
+
     .fi-sidebar-nav-groups {
         row-gap: calc(var(--spacing) * 2);
     }
