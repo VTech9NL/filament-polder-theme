@@ -7,12 +7,23 @@
 ])
 
 @php
+    use Filament\Actions\Action;
+    use Filament\Actions\ActionGroup;
     use Filament\Support\Facades\FilamentView;
     use Filament\View\PanelsRenderHook;
     use VTech9NL\PolderTheme\PolderRenderHook;
     use VTech9NL\PolderTheme\PolderThemePlugin;
 
     use function Filament\Support\is_slot_empty;
+
+    $getVisibleActionNames = function (array $actions) use (&$getVisibleActionNames): array {
+        return array_map(
+            fn ($action) => $action->isVisible()
+                ? ($action instanceof ActionGroup ? $getVisibleActionNames($action->getActions()) : ($action instanceof Action ? $action->getName() : true))
+                : null,
+            $actions,
+        );
+    };
 @endphp
 
 @if (! filament()->getCurrentPanel()?->hasPlugin(PolderThemePlugin::ID))
@@ -91,6 +102,7 @@
             <x-filament::actions
                 :actions="$actions"
                 :alignment="$actionsAlignment"
+                :wire:key="is_array($actions) ? $this->getId() . '.header-actions.' . md5(serialize($getVisibleActionNames($actions))) : null"
             />
         @endif
 

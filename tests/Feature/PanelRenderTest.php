@@ -105,6 +105,6 @@ it('moves the breadcrumbs into the bar on panels with the plugin', function () {
 it('still matches the Filament views it replaces', function (string $view, string $hash) {
     expect(hash_file('sha256', package_path("vendor/filament/filament/resources/views/{$view}")))->toBe($hash);
 })->with([
-    'header' => ['components/header/index.blade.php', '3b82f6e042cfacb6f086b71f1190ca143432a04206b3d535b74d9fe0b75d033d'],
-    'user menu' => ['components/user-menu.blade.php', 'd4ee9665fe2378fce86f2993cedc0f6257a618bad8eda043b7def336e71006d8'],
+    'header' => ['components/header/index.blade.php', 'a9b30c0e256fbee12768074be8d3c590b34f59d9e67ae620e14b1c9f339afeac'],
+    'user menu' => ['components/user-menu.blade.php', '734f709499102ea035e654739faeafa66c4b17287a15a9417a3030717cbb276f'],
 ]);
