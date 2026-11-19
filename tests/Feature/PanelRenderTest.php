@@ -1,7 +1,9 @@
 <?php
 
 use Filament\Facades\Filament;
+use Filament\Support\Facades\FilamentView;
 use Illuminate\Support\Str;
+use VTech9NL\PolderTheme\PolderRenderHook;
 use VTech9NL\PolderTheme\PolderThemeServiceProvider;
 use VTech9NL\PolderTheme\Tests\Fixtures\Team;
 use VTech9NL\PolderTheme\Tests\Fixtures\User;
@@ -100,6 +102,26 @@ it('moves the breadcrumbs into the bar on panels with the plugin', function () {
 
     expect($bar)->toContain('Polder crumb')
         ->and($header)->not->toContain('fi-breadcrumbs');
+});
+
+it('renders registered breadcrumb bar content between the breadcrumbs and the end of the bar', function () {
+    FilamentView::registerRenderHook(
+        PolderRenderHook::BREADCRUMB_BAR_CONTENT,
+        fn (): string => 'Broadcast status',
+    );
+
+    $html = get('/app/'.$this->team->getKey().'/breadcrumb-page')->assertOk()->getContent();
+    $bar = Str::betweenFirst($html, 'class="polder-theme-breadcrumb-bar"', 'class="fi-header');
+
+    expect(strpos($bar, 'fi-breadcrumbs'))->toBeLessThan(strpos($bar, 'polder-theme-breadcrumb-bar-content'))
+        ->and(strpos($bar, 'polder-theme-breadcrumb-bar-content'))->toBeLessThan(strpos($bar, 'Broadcast status'))
+        ->and(strpos($bar, 'Broadcast status'))->toBeLessThan(strpos($bar, 'polder-theme-breadcrumb-bar-end'));
+});
+
+it('renders no breadcrumb bar content box when no content hook is registered', function () {
+    get('/app/'.$this->team->getKey().'/breadcrumb-page')
+        ->assertOk()
+        ->assertDontSee('polder-theme-breadcrumb-bar-content');
 });
 
 it('still matches the Filament views it replaces', function (string $view, string $hash) {

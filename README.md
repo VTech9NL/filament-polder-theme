@@ -227,7 +227,7 @@ php artisan vendor:publish --tag=polder-translations
 
 ## Breadcrumb bar
 
-The breadcrumb bar has a slot on its right side. To put content there, register a render hook. This example moves the global search into the bar:
+The breadcrumb bar has a slot that takes the free width between the breadcrumbs and the end of the bar, and a slot on its right side. The free-width slot renders no box when no hook is registered. Register a render hook for either slot. This example puts a status line in the free width and moves the global search to the right:
 
 ```php
 use Filament\Enums\GlobalSearchPosition;
@@ -239,6 +239,11 @@ use VTech9NL\PolderTheme\PolderRenderHook;
 $panel->globalSearch(position: GlobalSearchPosition::Topbar);
 
 // In a service provider's boot() method:
+FilamentView::registerRenderHook(
+    PolderRenderHook::BREADCRUMB_BAR_CONTENT,
+    fn (): string => 'Status',
+);
+
 FilamentView::registerRenderHook(
     PolderRenderHook::BREADCRUMB_BAR_END,
     fn (): string => Blade::render('@livewire(\Filament\Livewire\GlobalSearch::class)'),

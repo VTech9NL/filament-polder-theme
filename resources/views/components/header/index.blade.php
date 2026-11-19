@@ -49,6 +49,12 @@
         <x-filament::breadcrumbs :breadcrumbs="$breadcrumbs" />
     @endif
 
+    @if (FilamentView::hasRenderHook(PolderRenderHook::BREADCRUMB_BAR_CONTENT, scopes: $this->getRenderHookScopes()))
+        <div class="polder-theme-breadcrumb-bar-content">
+            {{ FilamentView::renderHook(PolderRenderHook::BREADCRUMB_BAR_CONTENT, scopes: $this->getRenderHookScopes()) }}
+        </div>
+    @endif
+
     <div class="polder-theme-breadcrumb-bar-end">
         {{ FilamentView::renderHook(PolderRenderHook::BREADCRUMB_BAR_END, scopes: $this->getRenderHookScopes()) }}
     </div>
