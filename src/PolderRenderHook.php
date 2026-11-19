@@ -6,5 +6,7 @@ namespace VTech9NL\PolderTheme;
 
 class PolderRenderHook
 {
+    public const BREADCRUMB_BAR_CONTENT = 'polder::breadcrumb-bar.content';
+
     public const BREADCRUMB_BAR_END = 'polder::breadcrumb-bar.end';
 }

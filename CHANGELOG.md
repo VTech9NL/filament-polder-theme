@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.3.9 - 2026-11-19
+
+- The breadcrumb bar has a full-width slot, `PolderRenderHook::BREADCRUMB_BAR_CONTENT`, between the breadcrumbs and the end slot. It renders no box when no hook is registered.
+
 ## v0.3.8 - 2026-11-08
 
 - Keep section header actions at the top right in narrow sections while the heading and description wrap in the remaining space.

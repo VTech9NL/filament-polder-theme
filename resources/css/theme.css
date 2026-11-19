@@ -220,6 +220,10 @@
         @apply hidden;
     }
 
+    .polder-theme-breadcrumb-bar-content {
+        @apply min-w-0 flex-1;
+    }
+
     .polder-theme-breadcrumb-bar-end {
         @apply ms-auto flex items-center;
     }
