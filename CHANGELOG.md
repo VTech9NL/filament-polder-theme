@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.3.10 - 2026-11-20
+
+- Switches keep a full-size track and an even knob gap in compact density.
+
 ## v0.3.9 - 2026-11-19
 
 - The breadcrumb bar has a full-width slot, `PolderRenderHook::BREADCRUMB_BAR_CONTENT`, between the breadcrumbs and the end slot. It renders no box when no hook is registered.

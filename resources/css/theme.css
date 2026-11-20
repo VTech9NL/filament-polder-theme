@@ -253,7 +253,7 @@
         @apply pt-6 pb-4;
     }
 
-    /* Form controls and buttons keep a full-size hit target in every density */
+    /* Form controls, buttons and switches keep a full-size hit target in every density */
 
     .fi-input-wrp {
         --spacing: var(--polder-theme-control-spacing);
@@ -262,6 +262,10 @@
     .fi-btn {
         --spacing: var(--polder-theme-control-spacing);
         @apply gap-2;
+    }
+
+    .fi-toggle {
+        --spacing: var(--polder-theme-control-spacing);
     }
 
     .fi-btn:not(.fi-size-xs, .fi-size-sm, .fi-size-lg, .fi-size-xl) {
