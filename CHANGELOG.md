@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.4.2 - 2026-11-21
+
+- Fix the icons-only Flat centre icon colour and remove its fill in light and dark mode.
+
 ## v0.4.1 - 2026-11-21
 
 - Hide the empty breadcrumb bar below `lg` when mobile navigation is visible; breadcrumbs alone keep it only from `sm` up. Keep bars with hook output and safe-area spacing above the page heading.

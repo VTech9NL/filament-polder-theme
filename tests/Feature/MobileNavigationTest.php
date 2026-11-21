@@ -17,6 +17,7 @@ use VTech9NL\PolderTheme\Tests\Fixtures\BreadcrumbPage;
 use VTech9NL\PolderTheme\Tests\Fixtures\Team;
 use VTech9NL\PolderTheme\Tests\Fixtures\User;
 
+use function Orchestra\Testbench\package_path;
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 use function Pest\Livewire\livewire;
@@ -389,5 +390,7 @@ it('makes icons only optional and page aware while preserving accessible labels 
         ->and($html)->toContain('aria-label="Tools"', '>Export</span>');
     if ($enabled) {
         expect($bar)->toContain('aria-label="Inbox"', 'aria-label="Disabled"', 'aria-label="Scan"', 'aria-label="Tools"', 'aria-label="Create"');
+        expect(Str::after(file_get_contents(package_path('resources/css/theme.css')), '.polder-theme-mobile-navigation-icons-only {'))
+            ->toMatch('/& \.polder-theme-mobile-navigation-center-flat\s*\{[^{}]*& \.polder-theme-mobile-navigation-icon\s*\{\s*@apply size-7 bg-transparent text-primary-600 dark:bg-transparent dark:text-primary-400;/');
     }
 })->with([true, false]);

@@ -480,7 +480,7 @@
             @apply text-primary-600 dark:text-primary-400;
 
             & .polder-theme-mobile-navigation-icon {
-                @apply size-7 bg-transparent;
+                @apply size-7 bg-transparent text-primary-600 dark:bg-transparent dark:text-primary-400;
             }
         }
     }
