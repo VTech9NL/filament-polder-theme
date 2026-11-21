@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.4.0 - 2026-11-21
+
+- New dependency: `vtech9nl/filament-bottom-sheet` ^0.2. Polder's `theme.css` has the `@source` line for it. Rebuild the panel theme.
+- The mobile bar sheets are element sheets of the plugin, with the ids `polder-theme-polderItem<n>` (`<n>`: the item position, from 0). They open at the height of their content, snap at 25, 50, 75 and 100%, and close with a drag down, an outside tap or Escape.
+- A link or an action in a sheet closes the sheet with `bottom-sheet:close` before it runs.
+- Removed: the theme sheet state, backdrop, transition and handle, and their CSS classes `polder-theme-mobile-navigation-sheet`, `-sheet-backdrop`, `-sheet-panel-hidden` and `-sheet-handle`. The content classes stay.
+
 ## v0.3.13 - 2026-11-21
 
 - Define the mobile navigation height on `:root` so page content reserves space above the mobile bar below `lg`, including the bottom safe area.
