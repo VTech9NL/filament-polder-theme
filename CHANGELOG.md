@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.4.7 - 2026-11-21
+
+- Allow `vtech9nl/filament-bottom-sheet` ^0.3 alongside ^0.2.
+
 ## v0.4.6 - 2026-11-21
 
 - Fix the phone header menu: each action is a normal dropdown item, also with `->button()`, `->link()` or `->outlined()`. A page `ActionGroup` is a section of the same menu: a divider, its label as a small heading, and its actions as items; no button and no second menu. Each action still mounts one time.
