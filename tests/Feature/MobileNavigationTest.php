@@ -165,3 +165,82 @@ it('accepts file uploads only into the fields of its actions', function () {
 it('renders no bar on a panel without mobile navigation', function () {
     get('/compact')->assertOk()->assertDontSee('polder-theme-mobile-navigation');
 });
+
+it('marks a custom sheet active from its links unless explicitly overridden', function () {
+    Filament::setCurrentPanel('app');
+    Filament::setTenant($this->team, isQuiet: true);
+    $sheet = MobileNavigationItem::sheet('earnings')->items([
+        MobileNavigationItem::link('tips')->isActiveWhen(fn (?string $routeName): bool => $routeName === 'tips'),
+    ]);
+    Filament::getPanel('app')->getPlugin(PolderThemePlugin::ID)->getMobileNavigation()->items([$sheet]);
+
+    livewire(MobileNavigationBar::class, ['routeName' => 'tips'])->assertSet('items.0.active', true);
+    livewire(MobileNavigationBar::class, ['routeName' => 'other'])->assertSet('items.0.active', false);
+    $sheet->isActiveWhen(false);
+    livewire(MobileNavigationBar::class, ['routeName' => 'tips'])->assertSet('items.0.active', false);
+});
+
+it('uses an explicit active condition for every kind of sheet', function (string $source) {
+    Filament::setCurrentPanel('app');
+    Filament::setTenant($this->team, isQuiet: true);
+    $sheet = MobileNavigationItem::sheet('profile');
+    match ($source) {
+        'items' => $sheet->items([]),
+        'navigation' => $sheet->navigation(),
+        'userMenu' => $sheet->userMenu(),
+        'view' => $sheet->view('filament::components.loading-indicator'),
+    };
+    Filament::getPanel('app')->getPlugin(PolderThemePlugin::ID)->getMobileNavigation()->items([$sheet]);
+
+    livewire(MobileNavigationBar::class)->assertSet('items.0.active', false);
+    $sheet->isActiveWhen(fn (?string $routeName): bool => $routeName === 'profile');
+    livewire(MobileNavigationBar::class, ['routeName' => 'profile'])->assertSet('items.0.active', true);
+})->with(['items', 'navigation', 'userMenu', 'view']);
+
+it('renders disabled links with a title and no href in the bar and custom sheets', function (bool $inSheet) {
+    $item = MobileNavigationItem::link('room')->url('/blocked-room')->isActiveWhen(true)
+        ->disabled(fn (?string $routeName): bool => $routeName === 'filament.app.pages.dashboard')
+        ->title(fn (array $routeParameters): string => 'Blocked for '.$routeParameters['tenant']);
+    Filament::getPanel('app')->getPlugin(PolderThemePlugin::ID)->getMobileNavigation()
+        ->items([$inSheet ? MobileNavigationItem::sheet('tools')->items([$item]) : $item]);
+
+    $html = get('/app/'.$this->team->getKey())->assertOk()->getContent();
+    $dom = new DOMDocument;
+    @$dom->loadHTML($html);
+    $nodes = (new DOMXPath($dom))->query('//*[@aria-disabled="true"]');
+    expect($nodes)->toHaveCount(1);
+    $entry = $nodes->item(0);
+    expect($entry->nodeName)->toBe('span')
+        ->and($entry->hasAttribute('href'))->toBeFalse()
+        ->and($entry->getAttribute('title'))->toBe('Blocked for '.$this->team->getKey())
+        ->and($entry->getAttribute('class'))->toContain('polder-theme-disabled')->not->toContain('polder-theme-active');
+})->with([false, true]);
+
+it('renders escaped titles on each entry type and keeps enabled links', function () {
+    Filament::getPanel('app')->getPlugin(PolderThemePlugin::ID)->getMobileNavigation()->items([
+        MobileNavigationItem::link('room')->url('/room')->disabled(false)->title('Room "ready"'),
+        MobileNavigationItem::action(fn (): Action => Action::make('scan'))->title('Scan title'),
+        MobileNavigationItem::sheet('tools')->title('Tools title'),
+    ]);
+
+    get('/app/'.$this->team->getKey())->assertOk()
+        ->assertSee('href="/room"', escape: false)
+        ->assertSee('title="Room &quot;ready&quot;"', escape: false)
+        ->assertSee('title="Scan title"', escape: false)
+        ->assertSee('title="Tools title"', escape: false)
+        ->assertDontSee('aria-disabled="true"', escape: false);
+});
+
+it('marks a sheet active when a child URL matches the current page', function () {
+    Filament::getPanel('app')->getPlugin(PolderThemePlugin::ID)->getMobileNavigation()->items([
+        MobileNavigationItem::sheet('earnings')->items([
+            MobileNavigationItem::link('tips')->url(fn (): string => Dashboard::getUrl()),
+        ]),
+    ]);
+
+    $html = get('/app/'.$this->team->getKey())->assertOk()->getContent();
+    $dom = new DOMDocument;
+    @$dom->loadHTML($html);
+    $entry = (new DOMXPath($dom))->query('//button[@aria-haspopup="dialog"]')->item(0);
+    expect($entry->getAttribute('class'))->toContain('polder-theme-active');
+});

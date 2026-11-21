@@ -217,7 +217,9 @@ class MobileNavigationBar extends Component implements HasActions, HasSchemas
             'label' => $this->labelText($action?->getLabel() ?? $item->getLabel()),
             'icon' => $this->iconHtml($item->getIcon() ?? $action?->getIcon()),
             'url' => ($item->getType() === MobileNavigationItem::TYPE_LINK) ? $item->getUrl() : null,
-            'active' => ($item->getType() === MobileNavigationItem::TYPE_LINK) && $item->isActive(),
+            'active' => ($item->getType() !== MobileNavigationItem::TYPE_ACTION) && $item->isActive(),
+            'disabled' => $item->isDisabled(),
+            'title' => $item->getTitle(),
         ];
     }
 

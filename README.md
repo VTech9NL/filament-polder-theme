@@ -187,12 +187,14 @@ The bar puts the first half of the items to the left of the centre button and th
 | --- | --- |
 | `MobileNavigationItem::link('name')->url(...)` | Opens a URL. The item is active when the URL is the current page, or when the `->isActiveWhen()` closure returns `true`. |
 | `MobileNavigationItem::action(fn (): Action => ...)` | Runs a Filament action: a modal, a slide-over, or a direct action. The label and icon come from the action, unless you set them on the item. |
-| `MobileNavigationItem::sheet('name')->items([...])` | Opens a bottom sheet with your own links and actions. |
+| `MobileNavigationItem::sheet('name')->items([...])` | Opens a bottom sheet with your own links and actions. Active when one of its links is active, unless `->isActiveWhen()` is set (including `false`). |
 | `MobileNavigationItem::sheet('name')->navigation()` | Opens a bottom sheet with the panel's full navigation. |
 | `MobileNavigationItem::sheet('name')->userMenu()` | Opens a bottom sheet with the user menu: profile, theme, other tenants and sign out. |
 | `MobileNavigationItem::sheet('name')->view('my.view')` | Opens a bottom sheet with your own Blade view. |
+| `->disabled(bool\|Closure $condition = true)` | Disables a link in the bar or a custom sheet: gray, no URL or active colour, with `aria-disabled="true"`. |
+| `->title(string\|Closure\|null $title)` | Sets the HTML title on any entry type, including disabled links. `null` omits it. |
 
-All items take `->label()` and `->icon()`.
+All items take `->label()` and `->icon()`. The `->navigation()`, `->userMenu()` and `->view()` sheets are active only through `->isActiveWhen()`. Disabled and title closures receive the same `$routeName` and `$routeParameters` as the other item closures; their evaluated values are available through `isDisabled()` and `getTitle()`.
 
 ### Visibility
 

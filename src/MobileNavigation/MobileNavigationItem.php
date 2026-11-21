@@ -36,6 +36,10 @@ class MobileNavigationItem
 
     protected bool|Closure|null $isActive = null;
 
+    protected bool|Closure $isDisabled = false;
+
+    protected string|Closure|null $title = null;
+
     protected Action|Closure|null $action = null;
 
     protected string $sheet = self::SHEET_ITEMS;
@@ -96,6 +100,30 @@ class MobileNavigationItem
         $this->isActive = $condition;
 
         return $this;
+    }
+
+    public function disabled(bool|Closure $condition = true): static
+    {
+        $this->isDisabled = $condition;
+
+        return $this;
+    }
+
+    public function title(string|Closure|null $title): static
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+    public function isDisabled(): bool
+    {
+        return (bool) $this->evaluate($this->isDisabled);
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->evaluate($this->title);
     }
 
     /**
@@ -167,6 +195,12 @@ class MobileNavigationItem
     {
         if ($this->isActive !== null) {
             return (bool) $this->evaluate($this->isActive);
+        }
+
+        if ($this->type === self::TYPE_SHEET) {
+            return ($this->sheet === self::SHEET_ITEMS) && collect($this->getSheetItems())
+                ->contains(fn (self $item): bool => ($item->getType() === self::TYPE_LINK)
+                    && $item->pageContext($this->pageContext)->isActive());
         }
 
         $url = $this->getUrl();
