@@ -202,6 +202,16 @@ All items take `->label()` and `->icon()`. The `->navigation()`, `->userMenu()` 
 
 Badge closures receive the same `$routeName` and `$routeParameters` page context. For a Messenger link, pass the app's unread count to `->badge($unreadCount)`, or use a closure to resolve it when the bar renders. The theme does not fetch or poll unread counts.
 
+### Sheets
+
+The sheets are element sheets of [`vtech9nl/filament-bottom-sheet`](https://github.com/VTech9NL/filament-bottom-sheet). Polder requires the package, and Laravel registers it. You add no plugin and no `@source` line: Polder's `theme.css` has the `@source` line for the package. Rebuild the panel theme after you update Polder.
+
+- A sheet opens at the height of its content, with a maximum of the visible viewport. A drag moves it to the snap points 25, 50, 75 and 100%.
+- A drag down, a tap on the dark layer and Escape close the sheet.
+- Each sheet has the id `polder-theme-polderItem<n>`, where `<n>` is the position of its item in `->items()`, from 0. The window events `bottom-sheet:open` and `bottom-sheet:close`, with `{ id }`, open and close it.
+- A link or an action in a sheet closes the sheet first. The theme switch keeps the sheet open.
+- A `->view()` sheet shows your view in the scroll part of the sheet. To close the sheet from your view, send `bottom-sheet:close` with the sheet id.
+
 ### Visibility
 
 By default the bar shows on every page of the panel, for signed-in users. To hide it on some pages, for example a printable page or a full-screen map, pass a condition. The closure can receive the page's route:
@@ -300,7 +310,7 @@ For example, rounder corners everywhere and lighter containers in dark mode:
 
 - **CSS layers.** All rules sit in `@layer polder-theme`, between Filament's components and Tailwind's utilities. Your own CSS, outside any layer, always wins. The plugin also writes the layer order at the top of the page `<head>`, so a plugin stylesheet that loads before your theme cannot change it.
 - **Two Blade views.** Polder replaces `components/header/index` (the breadcrumb bar) and `components/user-menu`, only in panels that register the plugin; other panels keep Filament's own views. Each one starts from the Filament 5 view and adds only Polder's changes. A test fails when Filament changes either original view, and CI runs every week against the latest Filament 5 release.
-- **No extra build step.** Polder's own views use only `polder-theme-*` classes, which the theme CSS styles. You do not need an `@source` line for the package.
+- **No extra build step.** Polder's own views use only `polder-theme-*` classes, which the theme CSS styles. Polder's `theme.css` has the `@source` line for the bottom sheet package. You do not need an `@source` line for either package.
 
 ## Testing
 
