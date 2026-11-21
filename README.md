@@ -176,10 +176,13 @@ The bar puts the first half of the items to the left of the centre button and th
 
 When the bar is visible on the current page, the breadcrumb bar hides its sidebar toggle below `lg`. From `lg`, and on pages without the bar, the toggle keeps its usual behaviour. To offer the account menu on a phone, add a `MobileNavigationItem::sheet('account')->userMenu()` item to the bar.
 
+When the mobile bar is visible, an empty breadcrumb bar hides below `lg` (or below `sm` when it contains only breadcrumbs), with safe-area spacing above the page heading.
+
 ### Styles
 
 | Setting | Options |
 | --- | --- |
+| `->iconsOnly(bool\|Closure $condition = true)` | Default off; hide bar labels, keep accessible labels and sheet titles, and centre larger icons; with `MobileNavigationButton::Flat`, the centre action matches the other entries with a primary-coloured icon and no fill. |
 | `->style()` | `MobileNavigationStyle::Floating`: a rounded bar above the content. `MobileNavigationStyle::Docked`: a full-width bar on the bottom edge. |
 | Second argument of `->centerAction()` | `MobileNavigationButton::Raised`: a round button that rises above the bar. `MobileNavigationButton::Flat`: a filled button in the row, with its label. |
 
