@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.3.12 - 2026-11-21
+
+- Hide the breadcrumb bar's sidebar toggle below `lg` when mobile navigation is visible on the current page. Desktop and pages without the bar keep their usual behaviour; the account menu is available through a `sheet()->userMenu()` item.
+- Mobile links, actions and sheets support `badge()` and `badgeColor()` on their icons, including closures with page context. Badges default to `primary` and hide for null, empty or zero values.
+
 ## v0.3.11 - 2026-11-21
 
 - Custom mobile sheets are active when one of their links is active. `isActiveWhen()` overrides this and can mark any sheet active.

@@ -40,6 +40,10 @@ class MobileNavigationItem
 
     protected string|Closure|null $title = null;
 
+    protected string|int|Closure|null $badge = null;
+
+    protected string|Closure|null $badgeColor = 'primary';
+
     protected Action|Closure|null $action = null;
 
     protected string $sheet = self::SHEET_ITEMS;
@@ -114,6 +118,30 @@ class MobileNavigationItem
         $this->title = $title;
 
         return $this;
+    }
+
+    public function badge(string|int|Closure|null $badge): static
+    {
+        $this->badge = $badge;
+
+        return $this;
+    }
+
+    public function badgeColor(string|Closure|null $color): static
+    {
+        $this->badgeColor = $color;
+
+        return $this;
+    }
+
+    public function getBadge(): string|int|null
+    {
+        return $this->evaluate($this->badge);
+    }
+
+    public function getBadgeColor(): string
+    {
+        return $this->evaluate($this->badgeColor) ?? 'primary';
     }
 
     public function isDisabled(): bool

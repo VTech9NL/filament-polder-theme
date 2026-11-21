@@ -220,6 +220,8 @@ class MobileNavigationBar extends Component implements HasActions, HasSchemas
             'active' => ($item->getType() !== MobileNavigationItem::TYPE_ACTION) && $item->isActive(),
             'disabled' => $item->isDisabled(),
             'title' => $item->getTitle(),
+            'badge' => $item->getBadge(),
+            'badgeColor' => $item->getBadgeColor(),
         ];
     }
 
