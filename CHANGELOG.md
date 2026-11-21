@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.4.6 - 2026-11-21
+
+- Fix the phone header menu: each action is a normal dropdown item, also with `->button()`, `->link()` or `->outlined()`. A page `ActionGroup` is a section of the same menu: a divider, its label as a small heading, and its actions as items; no button and no second menu. Each action still mounts one time.
+- Give the header menu panel the ring and shadow of a Filament dropdown on the opaque raised colour, so it stands out from the page in light and dark mode.
+
 ## v0.4.5 - 2026-11-21
 
 - Fix the switch between inline header actions and the menu on a phone: it measures the natural width of the heading row and of the actions, the same in both modes. Inline when the full heading and the actions fit, else the menu. The heading is no longer truncated next to inline actions. It chooses again on load, after the fonts load and on each resize or rotation, in both directions.

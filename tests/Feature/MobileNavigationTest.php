@@ -486,27 +486,49 @@ it('puts the header actions on the heading row as buttons and as one menu with t
     expect($this->ran)->toBe('payout');
 });
 
-it('starts several header actions in the menu and keeps a page group a group', function () {
+it('starts several header actions in the menu as items with a page group as a section', function () {
     PolderHeaderActionsPage::$actions = fn (): array => [
-        Action::make('first')->label('First')->icon(Heroicon::OutlinedStar),
+        Action::make('first')->label('First')->icon(Heroicon::OutlinedStar)->button()->outlined(),
         Action::make('hidden')->label('Hidden')->hidden(),
         ActionGroup::make([
-            Action::make('second')->label('Second'),
-            Action::make('third')->label('Third'),
-        ])->label('More things'),
+            Action::make('second')->label('Second')->requiresConfirmation()->action(fn () => $this->ran = 'second'),
+            Action::make('third')->label('Third')->color('danger'),
+            Action::make('hiddenToo')->label('Hidden too')->hidden(),
+        ])->label('More things')->icon(Heroicon::OutlinedCog6Tooth)->button(),
+        Action::make('fourth')->label('Fourth'),
     ];
 
+    $page = headerActionsPage();
     $dom = new DOMDocument;
-    @$dom->loadHTML(headerActionsPage()->html());
+    @$dom->loadHTML($page->html());
     $xpath = new DOMXPath($dom);
     $header = $xpath->query('//header[contains(@class, "fi-header")]')->item(0);
     $menu = $xpath->query('.//*[@x-ref="menu"]', $header)->item(0);
+    $panel = $xpath->query('.//*[contains(@class, "fi-dropdown-panel")]', $menu)->item(0);
+    $sections = $xpath->query('./*[contains(@class, "fi-dropdown-list")]', $panel);
+    $itemLabels = fn ($section): array => array_map(
+        fn ($item): string => trim($item->textContent),
+        iterator_to_array($xpath->query('./*[contains(concat(" ", @class, " "), " fi-dropdown-list-item ")]', $section)),
+    );
 
     expect($header->getAttribute('class'))->toContain('polder-theme-header-actions-menu')
         ->and($header->getAttribute('x-data'))->toContain('isInline: false')
-        ->and($menu->textContent)->toContain('First', 'More things', 'Second', 'Third')->not->toContain('Hidden')
-        ->and(strpos($menu->textContent, 'First'))->toBeLessThan(strpos($menu->textContent, 'More things'))
-        ->and($xpath->query('.//*[contains(@class, "fi-dropdown")]//*[contains(@class, "fi-dropdown")]', $menu)->length)->toBeGreaterThan(0);
+        ->and($menu->textContent)->not->toContain('Hidden')
+        ->and($sections)->toHaveCount(3)
+        ->and($itemLabels($sections->item(0)))->toBe(['First'])
+        ->and(trim($xpath->query('./*[contains(@class, "polder-theme-header-actions-menu-heading")]', $sections->item(1))->item(0)?->textContent ?? ''))->toBe('More things')
+        ->and($itemLabels($sections->item(1)))->toBe(['Second', 'Third'])
+        ->and($xpath->query('./*[contains(@class, "fi-color-danger")]', $sections->item(1)))->toHaveCount(1)
+        ->and($itemLabels($sections->item(2)))->toBe(['Fourth'])
+        ->and($xpath->query('.//*[contains(@class, "fi-dropdown-panel")]//*[contains(concat(" ", @class, " "), " fi-btn ") or contains(@class, "fi-dropdown-trigger")]', $menu))->toHaveCount(0)
+        ->and(actionTriggers($xpath, 'first'))->toBe(2)
+        ->and(actionTriggers($xpath, 'second'))->toBe(2);
+
+    $page->call('mountAction', 'second')->assertActionMounted('second');
+    expect($page->get('mountedActions'))->toHaveCount(1);
+
+    $page->callMountedAction();
+    expect($this->ran)->toBe('second');
 });
 
 it('keeps the header actions hooks in the actions container with the menu after them', function () {

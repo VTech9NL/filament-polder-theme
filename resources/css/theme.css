@@ -279,6 +279,24 @@
         @apply lg:hidden;
     }
 
+    /* The menu floats over the page: an opaque raised panel with the ring and the shadow of a Filament dropdown. The selector outranks the raised layer rule above */
+    .fi-header .polder-theme-header-actions-menu-trigger .fi-dropdown > .fi-dropdown-panel {
+        background-color: var(--polder-theme-raised);
+        box-shadow:
+            0 0 0 1px var(--polder-theme-raised-ring),
+            0 10px 15px -3px rgb(0 0 0 / 0.1),
+            0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+
+    /* The label of a page group: a small heading above its items in the menu */
+    .fi-dropdown-header.polder-theme-header-actions-menu-heading {
+        @apply px-2 pt-2 pb-1 text-xs;
+
+        & span {
+            @apply text-gray-500 dark:text-gray-400;
+        }
+    }
+
     .polder-theme-compact-header {
         @variant max-lg {
             @apply relative grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1;

@@ -208,24 +208,64 @@
         {{ $afterActions }}
 
         @if ($hasCompactActions)
-            {{-- The menu shows the same page actions: copies without key bindings, so that a click or a key mounts the action of the page one time --}}
+            {{-- The menu shows the same page actions as dropdown items: copies without key bindings, so that a click or a key mounts the action of the page one time. A page group is a section of the menu, with its label as the heading --}}
+            @php
+                $toMenuItem = fn (Action | ActionGroup $action): Action | ActionGroup => $action instanceof Action
+                    ? (clone $action)->keyBindings(null)->grouped()
+                    : (clone $action)->grouped();
+                $menuSections = [];
+
+                foreach ($visibleActions as $action) {
+                    if ($action instanceof ActionGroup) {
+                        $groupLabel = $action->getLabel();
+
+                        $menuSections[] = [
+                            'heading' => $groupLabel === __('filament-actions::group.trigger.label') ? null : $groupLabel,
+                            'isGroup' => true,
+                            'actions' => array_map($toMenuItem, array_filter($action->getActions(), fn ($action): bool => $action->isVisible())),
+                        ];
+
+                        continue;
+                    }
+
+                    if ($menuSections[array_key_last($menuSections) ?? -1]['isGroup'] ?? true) {
+                        $menuSections[] = ['heading' => null, 'isGroup' => false, 'actions' => []];
+                    }
+
+                    $menuSections[array_key_last($menuSections)]['actions'][] = $toMenuItem($action);
+                }
+            @endphp
             <div
                 class="polder-theme-header-actions-menu-trigger"
                 x-ref="menu"
                 wire:key="{{ $this->getId() }}.header-actions-menu.{{ md5(serialize($getVisibleActionNames($actions))) }}"
             >
-                {{
-                    ActionGroup::make(array_map(
-                        fn (Action | ActionGroup $action): Action | ActionGroup => $action instanceof Action
-                            ? (clone $action)->keyBindings(null)
-                            : clone $action,
-                        $visibleActions,
-                    ))
-                        ->label(__('polder::mobile-navigation.actions'))
-                        ->icon(Heroicon::EllipsisVertical)
-                        ->color('gray')
-                        ->dropdownPlacement('bottom-end')
-                }}
+                <x-filament::dropdown placement="bottom-end">
+                    <x-slot name="trigger">
+                        <x-filament::icon-button
+                            :icon="Heroicon::EllipsisVertical"
+                            :label="__('polder::mobile-navigation.actions')"
+                            color="gray"
+                            class="fi-ac-icon-btn-group"
+                        />
+                    </x-slot>
+
+                    @foreach ($menuSections as $section)
+                        @if (filled($section['actions']))
+                            <x-filament::dropdown.list>
+                                @if (filled($section['heading']))
+                                    <x-filament::dropdown.header class="polder-theme-header-actions-menu-heading">
+                                        {{ $section['heading'] }}
+                                    </x-filament::dropdown.header>
+                                @endif
+
+                                @foreach ($section['actions'] as $menuItem)
+                                    {{ $menuItem }}
+                                @endforeach
+                            </x-filament::dropdown.list>
+                        @endif
+                    @endforeach
+                </x-filament::dropdown>
             </div>
         @endif
     @endcapture
