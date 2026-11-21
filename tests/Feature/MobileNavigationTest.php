@@ -394,3 +394,59 @@ it('makes icons only optional and page aware while preserving accessible labels 
             ->toMatch('/& \.polder-theme-mobile-navigation-center-flat\s*\{[^{}]*& \.polder-theme-mobile-navigation-icon\s*\{\s*@apply size-7 bg-transparent text-primary-600 dark:bg-transparent dark:text-primary-400;/');
     }
 })->with([true, false]);
+
+it('renders an accessible mobile back link before the heading using the last linked breadcrumb', function () {
+    $html = get('/app/'.$this->team->getKey().'/breadcrumb-page')->assertOk()->getContent();
+    $dom = new DOMDocument;
+    @$dom->loadHTML($html);
+    $xpath = new DOMXPath($dom);
+    $buttons = $xpath->query('//header//a[contains(@class, "polder-theme-back-button")]');
+
+    expect($buttons)->toHaveCount(1);
+    $button = $buttons->item(0);
+    expect($button->getAttribute('href'))->toBe('/somewhere');
+    expect($button->getAttribute('aria-label'))->toBe('Back');
+    expect($xpath->query('following-sibling::h1', $button))->toHaveCount(1);
+    expect($button->getAttribute('x-on:click'))->toContain('document.referrer', 'window.location.origin', 'window.history.length > 1', 'window.history.back()');
+});
+
+it('falls back to the tenant panel home when no breadcrumb links are shown', function () {
+    Filament::getPanel('app')->breadcrumbs(false);
+
+    $html = get('/app/'.$this->team->getKey().'/breadcrumb-page')->assertOk()->getContent();
+    $dom = new DOMDocument;
+    @$dom->loadHTML($html);
+    $button = (new DOMXPath($dom))->query('//header//a[contains(@class, "polder-theme-back-button")]')->item(0);
+
+    expect($button->getAttribute('href'))->toBe(url('/app/'.$this->team->getKey()));
+});
+
+it('omits the back button on the dashboard and a configured panel home', function () {
+    get('/app/'.$this->team->getKey())->assertOk()->assertDontSee('polder-theme-back-button');
+
+    Filament::getPanel('app')->homeUrl(url('/app/'.$this->team->getKey().'/breadcrumb-page'));
+
+    get('/app/'.$this->team->getKey().'/breadcrumb-page')->assertOk()->assertDontSee('polder-theme-back-button');
+});
+
+it('omits the back button when disabled or mobile navigation is hidden or absent', function (string $state) {
+    $plugin = Filament::getPanel('app')->getPlugin(PolderThemePlugin::ID);
+    match ($state) {
+        'disabled' => $plugin->getMobileNavigation()->backButton(false),
+        'hidden' => $plugin->getMobileNavigation()->visible(false),
+        'absent' => $plugin->mobileNavigation(null),
+    };
+
+    get('/app/'.$this->team->getKey().'/breadcrumb-page')->assertOk()->assertDontSee('polder-theme-back-button');
+})->with(['disabled', 'hidden', 'absent']);
+
+it('evaluates the back button condition with the current page context', function (bool $enabled) {
+    Filament::getPanel('app')->getPlugin(PolderThemePlugin::ID)->getMobileNavigation()
+        ->backButton(fn (?string $routeName, array $routeParameters): bool => $enabled
+            && $routeName === 'filament.app.pages.breadcrumb-page'
+            && $routeParameters['tenant'] === (string) $this->team->getKey());
+
+    $response = get('/app/'.$this->team->getKey().'/breadcrumb-page')->assertOk();
+
+    $enabled ? $response->assertSee('polder-theme-back-button') : $response->assertDontSee('polder-theme-back-button');
+})->with([true, false]);

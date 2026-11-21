@@ -260,6 +260,16 @@
         @apply font-medium;
     }
 
+    .polder-theme-heading-row {
+        @variant max-lg {
+            @apply flex items-center gap-3;
+        }
+    }
+
+    .polder-theme-back-button {
+        @apply shrink-0 lg:hidden;
+    }
+
     .fi-header-heading {
         @apply text-2xl leading-tight font-semibold tracking-tight;
     }

@@ -10,6 +10,7 @@
     use Filament\Actions\Action;
     use Filament\Actions\ActionGroup;
     use Filament\Support\Facades\FilamentView;
+    use Filament\Support\Icons\Heroicon;
     use Filament\View\PanelsRenderHook;
     use VTech9NL\PolderTheme\PolderRenderHook;
     use VTech9NL\PolderTheme\PolderThemePlugin;
@@ -32,6 +33,15 @@
 @else
 @php
     $isMobileNavigationVisible = app()->getProvider(PolderThemeServiceProvider::class)->isMobileNavigationVisible();
+    $homeUrl = filament()->getHomeUrl();
+    $showBackButton = $isMobileNavigationVisible
+        && filled($heading)
+        && filament()->getCurrentPanel()->getPlugin(PolderThemePlugin::ID)->getMobileNavigation()->hasBackButton()
+        && ! ($this instanceof \Filament\Pages\Dashboard)
+        && rtrim(request()->url(), '/') !== rtrim(url($homeUrl), '/');
+    $backUrl = collect(array_keys($breadcrumbs))
+        ->last(fn ($url): bool => is_string($url) && filled($url)
+            && rtrim(explode('?', url($url), 2)[0], '/') !== rtrim(request()->url(), '/')) ?? $homeUrl;
     $barContent = FilamentView::renderHook(PolderRenderHook::BREADCRUMB_BAR_CONTENT, scopes: $this->getRenderHookScopes());
     $barEnd = FilamentView::renderHook(PolderRenderHook::BREADCRUMB_BAR_END, scopes: $this->getRenderHookScopes());
     $hasEmptyMobileBar = $isMobileNavigationVisible && is_slot_empty($barContent) && is_slot_empty($barEnd);
@@ -81,6 +91,20 @@
     }}
 >
     @capture($headingContent)
+        @if ($showBackButton)
+            <div class="polder-theme-heading-row">
+                <x-filament::icon-button
+                    tag="a"
+                    :href="$backUrl"
+                    :spa-mode="false"
+                    :icon="Heroicon::OutlinedArrowLeft"
+                    :label="__('polder::mobile-navigation.back')"
+                    color="gray"
+                    class="polder-theme-back-button"
+                    x-data="{}"
+                    x-on:click="if (document.referrer && new URL(document.referrer).origin === window.location.origin && window.history.length > 1) { $event.preventDefault(); window.history.back() }"
+                />
+        @endif
         {{ FilamentView::renderHook(PanelsRenderHook::PAGE_HEADER_HEADING_BEFORE, scopes: $this->getRenderHookScopes()) }}
 
         @if (filled($heading))
@@ -90,6 +114,10 @@
         @endif
 
         {{ FilamentView::renderHook(PanelsRenderHook::PAGE_HEADER_HEADING_AFTER, scopes: $this->getRenderHookScopes()) }}
+
+        @if ($showBackButton)
+            </div>
+        @endif
 
         @if (filled($subheading))
             <p class="fi-header-subheading">
