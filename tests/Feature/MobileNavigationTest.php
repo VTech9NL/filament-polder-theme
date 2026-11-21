@@ -3,6 +3,7 @@
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Pages\Dashboard;
+use Illuminate\Support\Str;
 use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 use VTech9NL\PolderTheme\Livewire\MobileNavigationBar;
 use VTech9NL\PolderTheme\MobileNavigation\MobileNavigation;
@@ -244,3 +245,59 @@ it('marks a sheet active when a child URL matches the current page', function ()
     $entry = (new DOMXPath($dom))->query('//button[@aria-haspopup="dialog"]')->item(0);
     expect($entry->getAttribute('class'))->toContain('polder-theme-active');
 });
+
+it('hides the mobile header toggle only when navigation is visible on the current page', function (string $state) {
+    $plugin = Filament::getPanel('app')->getPlugin(PolderThemePlugin::ID);
+    if ($state === 'absent') {
+        $plugin->mobileNavigation(null);
+    } else {
+        $plugin->getMobileNavigation()->visible(fn (?string $routeName, array $routeParameters): bool => $state === 'visible' && $routeName === 'filament.app.pages.dashboard'
+            && $routeParameters['tenant'] === (string) $this->team->getKey());
+    }
+
+    $html = get('/app/'.$this->team->getKey())->assertOk()->getContent();
+    $header = Str::betweenFirst($html, 'class="polder-theme-breadcrumb-bar"', 'class="fi-header');
+
+    expect($header)->toContain('polder-theme-sidebar-toggle')
+        ->not->toContain('fi-user-menu-trigger');
+    expect(str_contains($header, 'polder-theme-sidebar-toggle-desktop-only'))->toBe($state === 'visible');
+})->with(['visible', 'hidden', 'absent']);
+
+it('renders an escaped icon badge on links actions and sheets with page-aware colours', function (string $type) {
+    $item = match ($type) {
+        'link' => MobileNavigationItem::link('messages')->url('/messages'),
+        'action' => MobileNavigationItem::action(fn (): Action => Action::make('messages')),
+        'sheet' => MobileNavigationItem::sheet('messages'),
+    };
+    $item->badge(fn (?string $routeName): string => $routeName === 'filament.app.pages.dashboard' ? '<12>' : 'wrong page')
+        ->badgeColor(fn (array $routeParameters): string => $routeParameters['tenant'] === (string) $this->team->getKey() ? 'danger' : 'gray');
+    Filament::getPanel('app')->getPlugin(PolderThemePlugin::ID)->getMobileNavigation()->items([$item]);
+
+    $html = get('/app/'.$this->team->getKey())->assertOk()->getContent();
+    $dom = new DOMDocument;
+    @$dom->loadHTML($html);
+    $badge = (new DOMXPath($dom))->query('//span[contains(@class, "polder-theme-mobile-navigation-icon")]/span[contains(@class, "polder-theme-mobile-navigation-badge")]');
+
+    expect($badge)->toHaveCount(1);
+    expect(trim($badge->item(0)->textContent))->toBe('<12>');
+    expect($badge->item(0)->getAttribute('class'))->toContain('fi-color-danger');
+    expect($html)->toContain('&lt;12&gt;')->not->toContain('<12>');
+})->with(['link', 'action', 'sheet']);
+
+it('omits empty and zero badges and uses primary for a visible badge by default', function (string|int|null $value) {
+    Filament::getPanel('app')->getPlugin(PolderThemePlugin::ID)->getMobileNavigation()->items([
+        MobileNavigationItem::link('messages')->url('/messages')->badge($value),
+    ]);
+
+    $response = get('/app/'.$this->team->getKey())->assertOk();
+
+    if ($value === 5) {
+        $dom = new DOMDocument;
+        @$dom->loadHTML($response->getContent());
+        $badge = (new DOMXPath($dom))->query('//span[contains(@class, "polder-theme-mobile-navigation-badge")]');
+        expect($badge)->toHaveCount(1);
+        expect($badge->item(0)->getAttribute('class'))->toContain('fi-color-primary');
+    } else {
+        $response->assertDontSee('polder-theme-mobile-navigation-badge');
+    }
+})->with([null, 0, '0', '', 5]);

@@ -13,6 +13,7 @@
     use Filament\View\PanelsRenderHook;
     use VTech9NL\PolderTheme\PolderRenderHook;
     use VTech9NL\PolderTheme\PolderThemePlugin;
+    use VTech9NL\PolderTheme\PolderThemeServiceProvider;
 
     use function Filament\Support\is_slot_empty;
 
@@ -29,6 +30,9 @@
 @if (! filament()->getCurrentPanel()?->hasPlugin(PolderThemePlugin::ID))
     @include('polder-theme::stock.header')
 @else
+@php
+    $isMobileNavigationVisible = app()->getProvider(PolderThemeServiceProvider::class)->isMobileNavigationVisible();
+@endphp
 <div class="polder-theme-breadcrumb-bar">
     @if (filament()->hasNavigation() && (! filament()->hasTopbar()))
         <button
@@ -38,6 +42,7 @@
             x-bind:aria-label="$store.sidebar.isOpen ? @js(__('filament-panels::layout.actions.sidebar.collapse.label')) : @js(__('filament-panels::layout.actions.sidebar.expand.label'))"
             @class([
                 'polder-theme-sidebar-toggle',
+                'polder-theme-sidebar-toggle-desktop-only' => $isMobileNavigationVisible,
                 'polder-theme-sidebar-toggle-mobile-only' => ! (filament()->isSidebarCollapsibleOnDesktop() || filament()->isSidebarFullyCollapsibleOnDesktop()),
             ])
         >

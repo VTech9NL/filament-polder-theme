@@ -215,6 +215,10 @@
         @apply lg:hidden;
     }
 
+    .polder-theme-sidebar-toggle-desktop-only {
+        @apply max-lg:hidden;
+    }
+
     /* The breadcrumb bar's toggle replaces Filament's own, which otherwise adds a second toggle on phones */
     .fi-layout-sidebar-toggle-btn-ctn {
         @apply hidden;
@@ -404,12 +408,16 @@
     }
 
     .polder-theme-mobile-navigation-icon {
-        @apply flex size-6 items-center justify-center;
+        @apply relative flex size-6 items-center justify-center;
 
         & svg,
         & .fi-avatar {
             @apply size-6;
         }
+    }
+
+    .polder-theme-mobile-navigation-badge {
+        @apply absolute -end-2 -top-2 min-w-4 rounded-full px-1 py-0 text-[0.625rem] leading-4;
     }
 
     .polder-theme-mobile-navigation-center-raised {

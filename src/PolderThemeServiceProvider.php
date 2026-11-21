@@ -48,10 +48,9 @@ class PolderThemeServiceProvider extends ServiceProvider
         FilamentView::registerRenderHook(
             PanelsRenderHook::BODY_END,
             function (): string {
-                $navigation = $this->getPlugin()?->getMobileNavigation();
                 $pageRoute = $this->getPageRoute();
 
-                if (! Filament::auth()->check() || ! $navigation?->pageContext($pageRoute)->isVisible()) {
+                if (! $this->isMobileNavigationVisible()) {
                     return '';
                 }
 
@@ -61,6 +60,12 @@ class PolderThemeServiceProvider extends ServiceProvider
                 );
             },
         );
+    }
+
+    public function isMobileNavigationVisible(): bool
+    {
+        return Filament::auth()->check()
+            && ($this->getPlugin()?->getMobileNavigation()?->pageContext($this->getPageRoute())->isVisible() ?? false);
     }
 
     /**
