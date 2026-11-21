@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.4.5 - 2026-11-21
+
+- Fix the switch between inline header actions and the menu on a phone: it measures the natural width of the heading row and of the actions, the same in both modes. Inline when the full heading and the actions fit, else the menu. The heading is no longer truncated next to inline actions. It chooses again on load, after the fonts load and on each resize or rotation, in both directions.
+
 ## v0.4.4 - 2026-11-21
 
 - Put the page header actions on the heading row below `lg` when the mobile bar is visible: small buttons when they fit, else one "Actions" dropdown with the same actions. A `ResizeObserver` chooses again when the width changes. Disable it with `MobileNavigation::compactHeaderActions(false)` or a page-aware closure.

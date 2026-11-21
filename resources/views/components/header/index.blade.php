@@ -100,27 +100,28 @@
     @if ($hasCompactActions)
         x-data="{
             isInline: @js(count($visibleActions) === 1),
+            {{-- The natural width of the children of an element, the same in both modes: the hidden buttons keep their width, and a truncated heading gives its full text width --}}
+            naturalWidth(element, skip = null) {
+                const children = [...element.children].filter((child) => child !== skip && getComputedStyle(child).display !== 'none')
+                const gap = parseFloat(getComputedStyle(element).columnGap) || 0
+
+                return children.reduce((width, child) => width + Math.max(child.getBoundingClientRect().width, child.classList.contains('fi-header-heading') ? child.scrollWidth : 0), 0)
+                    + gap * Math.max(children.length - 1, 0)
+            },
             measure() {
                 const actions = this.$refs.actions
-                const menu = this.$refs.menu
                 const container = actions?.closest('.fi-header-actions-ctn')
-                const heading = this.$root.querySelector('.fi-header-heading')
+                const row = this.$root.querySelector('.polder-theme-heading-row')
 
-                if (! actions || ! container || window.matchMedia('(min-width: 64rem)').matches) {
+                if (! actions || ! container || ! row || window.matchMedia('(min-width: 64rem)').matches) {
                     return
                 }
 
-                const gap = parseFloat(getComputedStyle(container).columnGap) || 0
-                const actionsWidth = actions.getBoundingClientRect().width
-                const menuWidth = this.isInline ? 0 : menu.getBoundingClientRect().width + gap
-                const inlineWidth = container.getBoundingClientRect().width - menuWidth + (this.isInline ? 0 : actionsWidth + gap)
-                const row = this.$root.querySelector('.polder-theme-heading-row')
-                const leadWidth = row ? row.getBoundingClientRect().width - (heading?.getBoundingClientRect().width ?? 0) : 0
-                const rowWidth = this.$root.clientWidth
-                const headingWidth = Math.min(rowWidth * 0.4, heading?.scrollWidth ?? 0)
-                const rowGap = parseFloat(getComputedStyle(this.$root).columnGap) || 0
+                const style = getComputedStyle(this.$root)
+                const rowWidth = this.$root.getBoundingClientRect().width - (parseFloat(style.paddingInlineStart) || 0) - (parseFloat(style.paddingInlineEnd) || 0)
+                const gap = parseFloat(style.columnGap) || 0
 
-                this.isInline = (leadWidth + headingWidth + rowGap + inlineWidth) <= rowWidth
+                this.isInline = this.naturalWidth(row) + gap + this.naturalWidth(container, this.$refs.menu) <= rowWidth
             },
         }"
         x-init="
@@ -128,6 +129,8 @@
             const observer = new ResizeObserver(() => measure())
             observer.observe($el)
             observer.observe($refs.actions)
+            $el.querySelector('.fi-header-heading') && observer.observe($el.querySelector('.fi-header-heading'))
+            document.fonts?.ready.then(() => measure())
         "
         x-bind:class="{
             'polder-theme-header-actions-inline': isInline,
