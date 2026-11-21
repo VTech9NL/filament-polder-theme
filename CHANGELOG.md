@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.3.11 - 2026-11-21
+
+- Custom mobile sheets are active when one of their links is active. `isActiveWhen()` overrides this and can mark any sheet active.
+- Mobile links support `disabled()` in the bar and custom sheets, rendering a gray span without a link. All entry types support `title()`, including closures with page context.
+
 ## v0.3.10 - 2026-11-20
 
 - Switches keep a full-size track and an even knob gap in compact density.
