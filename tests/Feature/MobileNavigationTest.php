@@ -3,12 +3,17 @@
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Pages\Dashboard;
+use Filament\Support\Facades\FilamentView;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Str;
 use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 use VTech9NL\PolderTheme\Livewire\MobileNavigationBar;
 use VTech9NL\PolderTheme\MobileNavigation\MobileNavigation;
+use VTech9NL\PolderTheme\MobileNavigation\MobileNavigationButton;
 use VTech9NL\PolderTheme\MobileNavigation\MobileNavigationItem;
+use VTech9NL\PolderTheme\PolderRenderHook;
 use VTech9NL\PolderTheme\PolderThemePlugin;
+use VTech9NL\PolderTheme\Tests\Fixtures\BreadcrumbPage;
 use VTech9NL\PolderTheme\Tests\Fixtures\Team;
 use VTech9NL\PolderTheme\Tests\Fixtures\User;
 
@@ -256,7 +261,7 @@ it('hides the mobile header toggle only when navigation is visible on the curren
     }
 
     $html = get('/app/'.$this->team->getKey())->assertOk()->getContent();
-    $header = Str::betweenFirst($html, 'class="polder-theme-breadcrumb-bar"', 'class="fi-header');
+    $header = Str::betweenFirst($html, 'class="polder-theme-breadcrumb-bar', 'class="fi-header');
 
     expect($header)->toContain('polder-theme-sidebar-toggle')
         ->not->toContain('fi-user-menu-trigger');
@@ -332,3 +337,57 @@ it('renders each sheet as a bottom sheet element that the items open and close',
         ->not->toContain('polder-theme-mobile-navigation-sheet-handle')
         ->not->toContain('x-on:click="sheet');
 });
+
+it('hides empty breadcrumb bars only where their breadcrumbs cannot show', function (string $page, string $hideClass) {
+    get('/app/'.$this->team->getKey().$page)->assertOk()->assertSee($hideClass);
+})->with([
+    'dashboard below lg' => ['', 'polder-theme-breadcrumb-bar-empty-mobile'],
+    'breadcrumbs below sm' => ['/breadcrumb-page', 'polder-theme-breadcrumb-bar-empty-phone'],
+]);
+
+it('keeps breadcrumb bars with actual scoped hook output and renders it once', function (string $hook, string $output, bool $empty, string $page, string $scope, string $hideClass) {
+    $calls = 0;
+    FilamentView::registerRenderHook($hook, function () use ($output, &$calls): string {
+        $calls++;
+
+        return $output;
+    }, scopes: $scope);
+
+    $html = get('/app/'.$this->team->getKey().$page)->assertOk()->getContent();
+    expect(str_contains($html, $hideClass))->toBe($empty)
+        ->and($calls)->toBe(1);
+})->with([PolderRenderHook::BREADCRUMB_BAR_CONTENT, PolderRenderHook::BREADCRUMB_BAR_END])
+    ->with(['content' => ['Broadcast status', false], 'empty' => [" \n<!-- empty -->", true]])
+    ->with([
+        'dashboard' => ['', Dashboard::class, 'polder-theme-breadcrumb-bar-empty-mobile'],
+        'breadcrumbs' => ['/breadcrumb-page', BreadcrumbPage::class, 'polder-theme-breadcrumb-bar-empty-phone'],
+    ]);
+
+it('keeps the breadcrumb bar when mobile navigation is hidden or absent', function (bool $absent) {
+    $plugin = Filament::getPanel('app')->getPlugin(PolderThemePlugin::ID);
+    $absent ? $plugin->mobileNavigation(null) : $plugin->getMobileNavigation()->visible(false);
+
+    get('/app/'.$this->team->getKey())->assertOk()->assertDontSee('polder-theme-breadcrumb-bar-empty-');
+})->with([true, false]);
+
+it('makes icons only optional and page aware while preserving accessible labels and sheet contents', function (bool $enabled) {
+    $navigation = Filament::getPanel('app')->getPlugin(PolderThemePlugin::ID)->getMobileNavigation();
+    expect($navigation->isIconsOnly())->toBeFalse();
+    $navigation->iconsOnly(fn (?string $routeName): bool => $enabled && $routeName === 'filament.app.pages.dashboard');
+    $navigation->items([
+        MobileNavigationItem::link('inbox')->label('Inbox')->icon(Heroicon::OutlinedInbox)->url('/inbox')->badge(3),
+        MobileNavigationItem::link('disabled')->label('Disabled')->disabled(),
+        MobileNavigationItem::action(fn (): Action => Action::make('scan')->label('Scan')),
+        MobileNavigationItem::sheet('tools')->label('Tools')->items([MobileNavigationItem::link('export')->label('Export')->url('/export')]),
+    ])->centerAction(fn (): Action => Action::make('create')->label('Create'), MobileNavigationButton::Flat);
+
+    $html = get('/app/'.$this->team->getKey())->assertOk()->getContent();
+    $bar = Str::betweenFirst(Str::after($html, 'class="polder-theme-mobile-navigation polder-theme-mobile-navigation-'), '<nav', '</nav>');
+    expect(str_contains($bar, 'polder-theme-mobile-navigation-icons-only'))->toBe($enabled)
+        ->and(str_contains($bar, 'polder-theme-mobile-navigation-label'))->toBe(! $enabled)
+        ->and($bar)->toContain('polder-theme-mobile-navigation-center-flat', 'polder-theme-mobile-navigation-badge')
+        ->and($html)->toContain('aria-label="Tools"', '>Export</span>');
+    if ($enabled) {
+        expect($bar)->toContain('aria-label="Inbox"', 'aria-label="Disabled"', 'aria-label="Scan"', 'aria-label="Tools"', 'aria-label="Create"');
+    }
+})->with([true, false]);

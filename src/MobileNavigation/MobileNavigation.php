@@ -25,6 +25,8 @@ class MobileNavigation
 
     protected bool|Closure $isVisible = true;
 
+    protected bool|Closure $isIconsOnly = false;
+
     public static function make(): static
     {
         return app(static::class);
@@ -60,6 +62,18 @@ class MobileNavigation
         $this->isVisible = $condition;
 
         return $this;
+    }
+
+    public function iconsOnly(bool|Closure $condition = true): static
+    {
+        $this->isIconsOnly = $condition;
+
+        return $this;
+    }
+
+    public function isIconsOnly(): bool
+    {
+        return (bool) $this->evaluate($this->isIconsOnly);
     }
 
     public function isVisible(): bool

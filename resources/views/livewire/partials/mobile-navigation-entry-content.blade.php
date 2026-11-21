@@ -11,4 +11,6 @@
     @endif
 </span>
 
-<span class="polder-theme-mobile-navigation-label">{{ $entry['label'] }}</span>
+@if (! $hideLabel)
+    <span class="polder-theme-mobile-navigation-label">{{ $entry['label'] }}</span>
+@endif

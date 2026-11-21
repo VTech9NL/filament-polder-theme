@@ -206,6 +206,26 @@
         border-color: var(--polder-theme-rule);
     }
 
+    .polder-theme-breadcrumb-bar-empty-mobile {
+        @variant max-lg {
+            display: none;
+
+            & + .fi-header {
+                padding-top: calc(1rem + env(safe-area-inset-top));
+            }
+        }
+    }
+
+    .polder-theme-breadcrumb-bar-empty-phone {
+        @variant max-sm {
+            display: none;
+
+            & + .fi-header {
+                padding-top: calc(1rem + env(safe-area-inset-top));
+            }
+        }
+    }
+
     .polder-theme-sidebar-toggle {
         @apply -ms-1 inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200;
 
@@ -434,6 +454,34 @@
 
         & svg {
             @apply size-5;
+        }
+    }
+
+    .polder-theme-mobile-navigation-icons-only {
+        & .polder-theme-mobile-navigation-item,
+        & .polder-theme-mobile-navigation-center-flat {
+            @apply gap-0 py-3;
+
+            & .polder-theme-mobile-navigation-icon {
+                @apply my-0;
+
+                & svg,
+                & .fi-avatar {
+                    @apply size-7;
+                }
+            }
+        }
+
+        & .polder-theme-mobile-navigation-item .polder-theme-mobile-navigation-icon {
+            @apply size-7;
+        }
+
+        & .polder-theme-mobile-navigation-center-flat {
+            @apply text-primary-600 dark:text-primary-400;
+
+            & .polder-theme-mobile-navigation-icon {
+                @apply size-7 bg-transparent;
+            }
         }
     }
 
