@@ -394,6 +394,11 @@
         @apply text-primary-600 dark:text-primary-400;
     }
 
+    .polder-theme-mobile-navigation-item.polder-theme-disabled,
+    .polder-theme-mobile-navigation-tile.polder-theme-disabled {
+        @apply cursor-default text-gray-500 opacity-50 dark:text-gray-400;
+    }
+
     .polder-theme-mobile-navigation-label {
         @apply max-w-full truncate;
     }
