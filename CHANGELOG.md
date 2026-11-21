@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.3.13 - 2026-11-21
+
+- Define the mobile navigation height on `:root` so page content reserves space above the mobile bar below `lg`, including the bottom safe area.
+
 ## v0.3.12 - 2026-11-21
 
 - Hide the breadcrumb bar's sidebar toggle below `lg` when mobile navigation is visible on the current page. Desktop and pages without the bar keep their usual behaviour; the account menu is available through a `sheet()->userMenu()` item.

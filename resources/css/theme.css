@@ -7,6 +7,7 @@
         --polder-theme-radius-lg: 0.3rem;
         --polder-theme-radius-xl: 0.35rem;
         --polder-theme-inset: calc(var(--polder-theme-spacing) * 2);
+        --polder-theme-mobile-navigation-height: 4rem;
     }
 
     .fi-body {
@@ -353,7 +354,6 @@
     /* Mobile navigation */
 
     .polder-theme-mobile-navigation {
-        --polder-theme-mobile-navigation-height: 4rem;
         @apply lg:hidden;
     }
 
