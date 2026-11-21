@@ -1,12 +1,15 @@
 <?php
 
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Facades\Filament;
 use Filament\Pages\Dashboard;
 use Filament\Support\Facades\FilamentView;
 use Filament\Support\Icons\Heroicon;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Support\Str;
 use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
+use Livewire\Features\SupportTesting\Testable;
 use VTech9NL\PolderTheme\Livewire\MobileNavigationBar;
 use VTech9NL\PolderTheme\MobileNavigation\MobileNavigation;
 use VTech9NL\PolderTheme\MobileNavigation\MobileNavigationButton;
@@ -450,3 +453,118 @@ it('evaluates the back button condition with the current page context', function
 
     $enabled ? $response->assertSee('polder-theme-back-button') : $response->assertDontSee('polder-theme-back-button');
 })->with([true, false]);
+
+it('puts the header actions on the heading row as buttons and as one menu with the bar', function () {
+    PolderHeaderActionsPage::$actions = fn (): array => [
+        Action::make('requestPayout')->label('Request payout')->color('primary')->keyBindings(['mod+p'])
+            ->requiresConfirmation()->modalHeading('Confirm the payout')->action(fn () => $this->ran = 'payout'),
+    ];
+
+    $page = headerActionsPage();
+    $html = $page->html();
+    $dom = new DOMDocument;
+    @$dom->loadHTML($html);
+    $xpath = new DOMXPath($dom);
+    $header = $xpath->query('//header[contains(@class, "fi-header")]')->item(0);
+
+    expect($header->getAttribute('class'))->toContain('polder-theme-compact-header', 'polder-theme-header-actions-inline')
+        ->not->toContain('polder-theme-header-actions-menu ')
+        ->and($header->getAttribute('x-data'))->toContain('isInline: true', '0.4')
+        ->and($header->getAttribute('x-init'))->toContain('ResizeObserver')
+        ->and($xpath->query('.//*[contains(@class, "polder-theme-heading-row")]/h1', $header))->toHaveCount(1)
+        ->and($xpath->query('.//*[contains(@class, "fi-header-actions-ctn")]/*[@x-ref="actions"]//button[contains(@class, "fi-btn")]', $header))->toHaveCount(1)
+        ->and($xpath->query('.//*[@x-ref="menu"]//*[@aria-label="Actions"]', $header))->toHaveCount(1)
+        ->and($xpath->query('.//*[@x-ref="menu"]//*[contains(concat(" ", @class, " "), " fi-dropdown-list-item ")]', $header))->toHaveCount(1)
+        ->and(actionTriggers($xpath, 'requestPayout'))->toBe(2)
+        ->and(substr_count($html, 'x-mousetrap.global.mod-p'))->toBe(1);
+
+    $page->call('mountAction', 'requestPayout')->assertActionMounted('requestPayout');
+    expect($page->get('mountedActions'))->toHaveCount(1);
+
+    $page->callMountedAction();
+    expect($this->ran)->toBe('payout');
+});
+
+it('starts several header actions in the menu and keeps a page group a group', function () {
+    PolderHeaderActionsPage::$actions = fn (): array => [
+        Action::make('first')->label('First')->icon(Heroicon::OutlinedStar),
+        Action::make('hidden')->label('Hidden')->hidden(),
+        ActionGroup::make([
+            Action::make('second')->label('Second'),
+            Action::make('third')->label('Third'),
+        ])->label('More things'),
+    ];
+
+    $dom = new DOMDocument;
+    @$dom->loadHTML(headerActionsPage()->html());
+    $xpath = new DOMXPath($dom);
+    $header = $xpath->query('//header[contains(@class, "fi-header")]')->item(0);
+    $menu = $xpath->query('.//*[@x-ref="menu"]', $header)->item(0);
+
+    expect($header->getAttribute('class'))->toContain('polder-theme-header-actions-menu')
+        ->and($header->getAttribute('x-data'))->toContain('isInline: false')
+        ->and($menu->textContent)->toContain('First', 'More things', 'Second', 'Third')->not->toContain('Hidden')
+        ->and(strpos($menu->textContent, 'First'))->toBeLessThan(strpos($menu->textContent, 'More things'))
+        ->and($xpath->query('.//*[contains(@class, "fi-dropdown")]//*[contains(@class, "fi-dropdown")]', $menu)->length)->toBeGreaterThan(0);
+});
+
+it('keeps the header actions hooks in the actions container with the menu after them', function () {
+    FilamentView::registerRenderHook(PanelsRenderHook::PAGE_HEADER_ACTIONS_BEFORE, fn (): string => '<span id="polder-before">Before</span>');
+    FilamentView::registerRenderHook(PanelsRenderHook::PAGE_HEADER_ACTIONS_AFTER, fn (): string => '<span id="polder-after">After</span>');
+    PolderHeaderActionsPage::$actions = fn (): array => [Action::make('first'), Action::make('second')];
+
+    $html = headerActionsPage()->html();
+
+    expect(substr_count($html, 'id="polder-before"'))->toBe(1)
+        ->and(substr_count($html, 'id="polder-after"'))->toBe(1)
+        ->and($html)->toMatch('/id="polder-before".*x-ref="actions".*id="polder-after".*x-ref="menu"/s');
+});
+
+it('keeps the stock header actions without the bar or with compact header actions off', function (string $state) {
+    $plugin = Filament::getPanel('app')->getPlugin(PolderThemePlugin::ID);
+    match ($state) {
+        'disabled' => $plugin->getMobileNavigation()->compactHeaderActions(false),
+        'page-aware' => $plugin->getMobileNavigation()->compactHeaderActions(fn (?string $routeName): bool => $routeName === 'elsewhere'),
+        'hidden' => $plugin->getMobileNavigation()->visible(false),
+        'absent' => $plugin->mobileNavigation(null),
+    };
+    PolderHeaderActionsPage::$actions = fn (): array => [Action::make('first')->label('First')];
+
+    $html = headerActionsPage()->html();
+
+    $dom = new DOMDocument;
+    @$dom->loadHTML($html);
+
+    expect($html)->toContain('fi-header-actions-ctn', 'First')
+        ->not->toContain('polder-theme-compact-header', 'x-ref="menu"', 'x-ref="actions"', 'polder-theme-header-actions-inline')
+        ->and(actionTriggers(new DOMXPath($dom), 'first'))->toBe(1);
+})->with(['disabled', 'page-aware', 'hidden', 'absent']);
+
+it('leaves a page without header actions as it was', function () {
+    PolderHeaderActionsPage::$actions = fn (): array => [];
+
+    expect(headerActionsPage()->html())->not->toContain('polder-theme-compact-header', 'x-ref="menu"');
+});
+
+function headerActionsPage(): Testable
+{
+    Filament::setCurrentPanel('app');
+    Filament::setTenant(test()->team);
+
+    return livewire(PolderHeaderActionsPage::class);
+}
+
+function actionTriggers(DOMXPath $xpath, string $name): int
+{
+    return $xpath->query("//*[@*[name()='wire:click' and contains(., \"mountAction('{$name}'\")]]")->length;
+}
+
+class PolderHeaderActionsPage extends BreadcrumbPage
+{
+    public static ?Closure $actions = null;
+
+    protected function getHeaderActions(): array
+    {
+        return (static::$actions)();
+    }
+}
