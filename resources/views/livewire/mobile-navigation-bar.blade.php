@@ -1,5 +1,6 @@
 @php
     use Filament\Support\Icons\Heroicon;
+    use Illuminate\Support\Js;
     use VTech9NL\PolderTheme\Livewire\MobileNavigationBar;
     use VTech9NL\PolderTheme\MobileNavigation\MobileNavigationItem;
 
@@ -10,8 +11,7 @@
 @endphp
 
 <div
-    x-data="{ sheet: null }"
-    x-on:keydown.escape.window="sheet = null"
+    x-data
     class="polder-theme-mobile-navigation polder-theme-mobile-navigation-{{ $style }}"
 >
     <nav
@@ -48,25 +48,20 @@
     </nav>
 
     @foreach ($sheets as $sheet)
-        <div x-cloak x-show="sheet === @js($sheet['key'])" class="polder-theme-mobile-navigation-sheet">
-            <div
-                x-show="sheet === @js($sheet['key'])"
-                x-transition.opacity
-                x-on:click="sheet = null"
-                class="polder-theme-mobile-navigation-sheet-backdrop"
-            ></div>
+        @php($sheetId = 'polder-theme-'.$sheet['key'])
 
-            <div
-                x-show="sheet === @js($sheet['key'])"
-                x-transition:enter-start="polder-theme-mobile-navigation-sheet-panel-hidden"
-                x-transition:leave-end="polder-theme-mobile-navigation-sheet-panel-hidden"
-                role="dialog"
-                aria-modal="true"
-                aria-label="{{ $sheet['label'] }}"
-                class="polder-theme-mobile-navigation-sheet-panel"
-            >
-                <div class="polder-theme-mobile-navigation-sheet-handle"></div>
-
+        <div
+            x-cloak
+            x-bottom-sheet:element
+            wire:ignore.self
+            wire:key="{{ $sheetId }}"
+            data-bottom-sheet-id="{{ $sheetId }}"
+            data-bottom-sheet-initial-height="content"
+            role="dialog"
+            aria-modal="true"
+            aria-label="{{ $sheet['label'] }}"
+        >
+            <div data-bottom-sheet-content class="polder-theme-mobile-navigation-sheet-panel">
                 @if ($sheet['sheet'] === MobileNavigationItem::SHEET_USER_MENU)
                     <div class="polder-theme-mobile-navigation-sheet-user">
                         <x-filament-panels::avatar.user :user="$user" loading="lazy" />
@@ -80,7 +75,7 @@
                         </div>
                     </div>
 
-                    <x-filament::dropdown.list>
+                    <x-filament::dropdown.list x-on:click="$event.target.closest('a, button') && $dispatch('bottom-sheet:close', { id: {{ Js::from($sheetId) }} })">
                         @foreach ($this->getUserMenuItems() as $key => $menuItem)
                             @if (($key !== 'logout') && (($key !== 'profile') || filled($menuItem->getUrl()) || $menuItem->hasAction()))
                                 {{ $menuItem }}
@@ -95,7 +90,7 @@
                     @endif
 
                     @if (filament()->hasTenancy() && filled($tenants = $this->getSwitchableTenants()))
-                        <x-filament::dropdown.list>
+                        <x-filament::dropdown.list x-on:click="$event.target.closest('a, button') && $dispatch('bottom-sheet:close', { id: {{ Js::from($sheetId) }} })">
                             <div class="polder-theme-user-menu-section-label">{{ __('polder::user-menu.switch_tenant') }}</div>
 
                             @foreach ($tenants as $tenant)
@@ -111,7 +106,7 @@
                     @endif
 
                     @if ($logout = ($this->getUserMenuItems()['logout'] ?? null))
-                        <x-filament::dropdown.list>
+                        <x-filament::dropdown.list x-on:click="$event.target.closest('a, button') && $dispatch('bottom-sheet:close', { id: {{ Js::from($sheetId) }} })">
                             {{ $logout }}
                         </x-filament::dropdown.list>
                     @endif
@@ -126,7 +121,7 @@
 
                             <div class="polder-theme-mobile-navigation-sheet-grid">
                                 @foreach ($group['items'] as $entry)
-                                    @include('polder-theme::livewire.partials.mobile-navigation-entry', ['entry' => $entry, 'class' => 'polder-theme-mobile-navigation-tile'])
+                                    @include('polder-theme::livewire.partials.mobile-navigation-entry', ['entry' => $entry, 'class' => 'polder-theme-mobile-navigation-tile', 'sheetId' => $sheetId])
                                 @endforeach
                             </div>
                         </div>

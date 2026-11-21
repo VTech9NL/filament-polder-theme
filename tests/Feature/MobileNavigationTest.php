@@ -301,3 +301,34 @@ it('omits empty and zero badges and uses primary for a visible badge by default'
         $response->assertDontSee('polder-theme-mobile-navigation-badge');
     }
 })->with([null, 0, '0', '', 5]);
+
+it('renders each sheet as a bottom sheet element that the items open and close', function () {
+    $html = get('/app/'.$this->team->getKey())->assertOk()->getContent();
+    $dom = new DOMDocument;
+    @$dom->loadHTML($html);
+    $xpath = new DOMXPath($dom);
+    $sheets = $xpath->query('//div[@data-bottom-sheet-id]');
+
+    expect(collect($sheets)->map(fn (DOMElement $sheet): string => $sheet->getAttribute('data-bottom-sheet-id'))->all())
+        ->toBe(['polder-theme-polderItem2', 'polder-theme-polderItem3', 'polder-theme-polderItem4']);
+
+    foreach ($sheets as $sheet) {
+        expect($sheet->hasAttribute('x-bottom-sheet:element'))->toBeTrue()
+            ->and($sheet->getAttribute('data-bottom-sheet-initial-height'))->toBe('content')
+            ->and($sheet->hasAttribute('wire:ignore.self'))->toBeTrue()
+            ->and($sheet->hasAttribute('data-bottom-sheet-overlay'))->toBeFalse()
+            ->and($xpath->query('./div[@data-bottom-sheet-content]', $sheet)->length)->toBe(1);
+    }
+
+    expect($xpath->query('//button[@aria-haspopup="dialog"]')->item(0)->getAttribute('x-on:click'))
+        ->toBe("\$dispatch('bottom-sheet:open', { id: 'polder-theme-polderItem2' })");
+    expect($xpath->query('//*[@data-bottom-sheet-id="polder-theme-polderItem2"]//button[contains(@class, "polder-theme-mobile-navigation-tile")]')->item(0)->getAttribute('x-on:click'))
+        ->toBe("\$dispatch('bottom-sheet:close', { id: 'polder-theme-polderItem2' })");
+    expect($xpath->query('//*[@data-bottom-sheet-id="polder-theme-polderItem3"]//a')->item(0)->getAttribute('x-on:click'))
+        ->toBe("\$dispatch('bottom-sheet:close', { id: 'polder-theme-polderItem3' })");
+    expect($xpath->query('//*[@data-bottom-sheet-id="polder-theme-polderItem4"]//*[contains(@class, "fi-dropdown-list")]')->item(0)->getAttribute('x-on:click'))
+        ->toContain("\$dispatch('bottom-sheet:close', { id: 'polder-theme-polderItem4' })");
+    expect($html)->not->toContain('polder-theme-mobile-navigation-sheet-backdrop')
+        ->not->toContain('polder-theme-mobile-navigation-sheet-handle')
+        ->not->toContain('x-on:click="sheet');
+});
