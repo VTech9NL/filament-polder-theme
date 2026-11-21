@@ -67,6 +67,15 @@ it('fixes the layer order before any stylesheet can declare it', function () {
         ->and($layerOrderPosition)->toBeLessThan(strpos($html, '<link'));
 });
 
+it('shares the mobile bar height with the page content padding', function (): void {
+    $css = file_get_contents(package_path('resources/css/theme.css'));
+
+    expect($css)
+        ->toMatch('/:root\s*\{[^}]*--polder-theme-mobile-navigation-height:\s*4rem;/s')
+        ->not->toMatch('/\.polder-theme-mobile-navigation\s*\{[^}]*--polder-theme-mobile-navigation-height:/s')
+        ->toMatch('/\.fi-body:has\(\.polder-theme-mobile-navigation\) \.fi-main\s*\{\s*@variant max-lg\s*\{\s*padding-bottom: calc\(var\(--polder-theme-mobile-navigation-height\) \+ 2\.5rem \+ env\(safe-area-inset-bottom\)\);/');
+});
+
 it('leaves the sidebar toggle to the topbar when the panel keeps it', function () {
     get('/app/'.$this->team->getKey())->assertSee('polder-theme-sidebar-toggle');
 
