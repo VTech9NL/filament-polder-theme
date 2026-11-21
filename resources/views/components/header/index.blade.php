@@ -32,8 +32,15 @@
 @else
 @php
     $isMobileNavigationVisible = app()->getProvider(PolderThemeServiceProvider::class)->isMobileNavigationVisible();
+    $barContent = FilamentView::renderHook(PolderRenderHook::BREADCRUMB_BAR_CONTENT, scopes: $this->getRenderHookScopes());
+    $barEnd = FilamentView::renderHook(PolderRenderHook::BREADCRUMB_BAR_END, scopes: $this->getRenderHookScopes());
+    $hasEmptyMobileBar = $isMobileNavigationVisible && is_slot_empty($barContent) && is_slot_empty($barEnd);
 @endphp
-<div class="polder-theme-breadcrumb-bar">
+<div @class([
+    'polder-theme-breadcrumb-bar',
+    'polder-theme-breadcrumb-bar-empty-mobile' => $hasEmptyMobileBar && ! $breadcrumbs,
+    'polder-theme-breadcrumb-bar-empty-phone' => $hasEmptyMobileBar && $breadcrumbs,
+])>
     @if (filament()->hasNavigation() && (! filament()->hasTopbar()))
         <button
             type="button"
@@ -56,12 +63,12 @@
 
     @if (FilamentView::hasRenderHook(PolderRenderHook::BREADCRUMB_BAR_CONTENT, scopes: $this->getRenderHookScopes()))
         <div class="polder-theme-breadcrumb-bar-content">
-            {{ FilamentView::renderHook(PolderRenderHook::BREADCRUMB_BAR_CONTENT, scopes: $this->getRenderHookScopes()) }}
+            {{ $barContent }}
         </div>
     @endif
 
     <div class="polder-theme-breadcrumb-bar-end">
-        {{ FilamentView::renderHook(PolderRenderHook::BREADCRUMB_BAR_END, scopes: $this->getRenderHookScopes()) }}
+        {{ $barEnd }}
     </div>
 </div>
 

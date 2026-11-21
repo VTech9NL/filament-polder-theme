@@ -18,6 +18,7 @@
         aria-label="{{ __('polder::mobile-navigation.label') }}"
         @class([
             'polder-theme-mobile-navigation-bar',
+            'polder-theme-mobile-navigation-icons-only' => $iconsOnly,
             'polder-theme-mobile-navigation-bar-notched' => $centerAction && ($centerButton === 'raised'),
         ])
     >
@@ -36,7 +37,7 @@
                     {{ generate_icon_html($centerAction->getIcon() ?? Heroicon::Plus) }}
                 </span>
 
-                @if ($centerButton === 'flat')
+                @if (($centerButton === 'flat') && (! $iconsOnly))
                     <span class="polder-theme-mobile-navigation-label">{{ $centerAction->getLabel() }}</span>
                 @endif
             </button>

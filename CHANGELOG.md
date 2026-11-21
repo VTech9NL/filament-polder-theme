@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.4.1 - 2026-11-21
+
+- Hide the empty breadcrumb bar below `lg` when mobile navigation is visible; breadcrumbs alone keep it only from `sm` up. Keep bars with hook output and safe-area spacing above the page heading.
+- Add opt-in `MobileNavigation::iconsOnly(bool|Closure $condition = true)` for larger, centred bar icons without visible labels, preserving accessible labels, badges and sheet titles. An icons-only Flat centre action matches the other entries with a primary-coloured icon and no fill; labelled Flat and raised buttons keep their existing style.
+
 ## v0.4.0 - 2026-11-21
 
 - New dependency: `vtech9nl/filament-bottom-sheet` ^0.2. Polder's `theme.css` has the `@source` line for it. Rebuild the panel theme.

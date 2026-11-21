@@ -269,6 +269,7 @@ class MobileNavigationBar extends Component implements HasActions, HasSchemas
 
         return view('polder-theme::livewire.mobile-navigation-bar', [
             'style' => $navigation?->getStyle()->value,
+            'iconsOnly' => $navigation?->isIconsOnly() ?? false,
             'centerButton' => $navigation?->getCenterButton()->value,
             'hasCenterAction' => $hasCenterAction,
             'leftItems' => array_slice($this->items, 0, $leftCount),
