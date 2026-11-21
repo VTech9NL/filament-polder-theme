@@ -174,6 +174,8 @@ PolderThemePlugin::make()
 
 The bar puts the first half of the items to the left of the centre button and the rest to the right.
 
+When the bar is visible on the current page, the breadcrumb bar hides its sidebar toggle below `lg`. From `lg`, and on pages without the bar, the toggle keeps its usual behaviour. To offer the account menu on a phone, add a `MobileNavigationItem::sheet('account')->userMenu()` item to the bar.
+
 ### Styles
 
 | Setting | Options |
@@ -192,9 +194,13 @@ The bar puts the first half of the items to the left of the centre button and th
 | `MobileNavigationItem::sheet('name')->userMenu()` | Opens a bottom sheet with the user menu: profile, theme, other tenants and sign out. |
 | `MobileNavigationItem::sheet('name')->view('my.view')` | Opens a bottom sheet with your own Blade view. |
 | `->disabled(bool\|Closure $condition = true)` | Disables a link in the bar or a custom sheet: gray, no URL or active colour, with `aria-disabled="true"`. |
+| `->badge(string\|int\|Closure\|null $badge)` | Shows a small pill on the item icon for links, actions and sheets. `null`, an empty string, `0` and `'0'` hide it. |
+| `->badgeColor(string\|Closure\|null $color)` | Sets a Filament badge colour, such as `danger`; defaults to `primary`, including when `null` is returned. |
 | `->title(string\|Closure\|null $title)` | Sets the HTML title on any entry type, including disabled links. `null` omits it. |
 
 All items take `->label()` and `->icon()`. The `->navigation()`, `->userMenu()` and `->view()` sheets are active only through `->isActiveWhen()`. Disabled and title closures receive the same `$routeName` and `$routeParameters` as the other item closures; their evaluated values are available through `isDisabled()` and `getTitle()`.
+
+Badge closures receive the same `$routeName` and `$routeParameters` page context. For a Messenger link, pass the app's unread count to `->badge($unreadCount)`, or use a closure to resolve it when the bar renders. The theme does not fetch or poll unread counts.
 
 ### Visibility
 
