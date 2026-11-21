@@ -469,8 +469,9 @@ it('puts the header actions on the heading row as buttons and as one menu with t
 
     expect($header->getAttribute('class'))->toContain('polder-theme-compact-header', 'polder-theme-header-actions-inline')
         ->not->toContain('polder-theme-header-actions-menu ')
-        ->and($header->getAttribute('x-data'))->toContain('isInline: true', '0.4')
-        ->and($header->getAttribute('x-init'))->toContain('ResizeObserver')
+        ->and($header->getAttribute('x-data'))->toContain('isInline: true', 'scrollWidth', 'naturalWidth(container, this.$refs.menu)')
+        ->not->toContain('0.4')
+        ->and($header->getAttribute('x-init'))->toContain('ResizeObserver', 'document.fonts')
         ->and($xpath->query('.//*[contains(@class, "polder-theme-heading-row")]/h1', $header))->toHaveCount(1)
         ->and($xpath->query('.//*[contains(@class, "fi-header-actions-ctn")]/*[@x-ref="actions"]//button[contains(@class, "fi-btn")]', $header))->toHaveCount(1)
         ->and($xpath->query('.//*[@x-ref="menu"]//*[@aria-label="Actions"]', $header))->toHaveCount(1)
