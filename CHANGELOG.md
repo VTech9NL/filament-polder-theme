@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.4.4 - 2026-11-21
+
+- Put the page header actions on the heading row below `lg` when the mobile bar is visible: small buttons when they fit, else one "Actions" dropdown with the same actions. A `ResizeObserver` chooses again when the width changes. Disable it with `MobileNavigation::compactHeaderActions(false)` or a page-aware closure.
+
 ## v0.4.3 - 2026-11-21
 
 - Add a gray back arrow before page headings below `lg` when the mobile bar is visible, except on the dashboard or panel home. Prefer same-origin browser history, with a linked breadcrumb or panel home fallback that also works without JavaScript. Disable it with `MobileNavigation::backButton(false)` or a page-aware closure.

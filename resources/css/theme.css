@@ -274,6 +274,54 @@
         @apply text-2xl leading-tight font-semibold tracking-tight;
     }
 
+    /* With the mobile bar the heading and the header actions share one row, as in a native app: inline buttons when they fit, else one menu */
+    .polder-theme-header-actions-menu-trigger {
+        @apply lg:hidden;
+    }
+
+    .polder-theme-compact-header {
+        @variant max-lg {
+            @apply relative grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1;
+
+            & > .polder-theme-header-heading {
+                display: contents;
+            }
+
+            & .polder-theme-heading-row {
+                @apply col-start-1 row-start-1 flex min-w-0 items-center gap-3;
+            }
+
+            & .fi-header-heading {
+                @apply min-w-0 truncate;
+            }
+
+            & .fi-header-subheading {
+                @apply col-span-2 row-start-2;
+            }
+
+            & > .fi-header-actions-ctn {
+                @apply relative col-start-2 row-start-1 w-max flex-nowrap;
+            }
+
+            & .fi-header-actions-ctn > .fi-ac {
+                @apply w-max flex-nowrap;
+            }
+
+            & .fi-header-actions-ctn > .fi-ac .fi-btn:not(.fi-size-xs) {
+                @apply h-8 gap-1.5 px-3 py-0 text-sm;
+            }
+
+            /* The hidden buttons keep their width, so that the row can measure when they fit again */
+            &.polder-theme-header-actions-menu .fi-header-actions-ctn > .fi-ac {
+                @apply pointer-events-none invisible absolute end-0 top-0;
+            }
+
+            &.polder-theme-header-actions-inline .polder-theme-header-actions-menu-trigger {
+                @apply hidden;
+            }
+        }
+    }
+
     /* Widgets */
 
     .fi-wi {

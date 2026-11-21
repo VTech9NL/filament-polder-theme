@@ -8,6 +8,8 @@ return [
 
     'more' => 'More',
 
+    'actions' => 'Actions',
+
     'account' => 'Account',
 
 ];

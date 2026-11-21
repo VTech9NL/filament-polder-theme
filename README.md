@@ -180,6 +180,8 @@ When the mobile bar is visible, an empty breadcrumb bar hides below `lg` (or bel
 
 Below `lg`, pages with a heading and a visible mobile bar show a gray back arrow before the heading, except on the dashboard or panel home. It uses browser history when the referrer has the same origin and history has a previous entry; otherwise it follows the last linked breadcrumb or the panel home URL. The link also works without JavaScript. Disable it with `MobileNavigation::make()->backButton(false)`, or pass a closure with the same page context as the other bar options.
 
+Below `lg`, with a visible mobile bar, the page heading and its header actions share one row, as in a native app. The heading stays on one line and ends with an ellipsis when it is long. The actions show on the right as small buttons when they fit next to at least 40% of the row for the heading; otherwise one gray "Actions" button opens them in a dropdown, with page action groups kept as groups. The row measures its space again when the width changes. The `PAGE_HEADER_ACTIONS_BEFORE` and `_AFTER` hooks stay before the buttons or the menu. Disable it with `MobileNavigation::make()->compactHeaderActions(false)`, or pass a page-aware closure.
+
 ### Styles
 
 | Setting | Options |

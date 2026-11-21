@@ -45,6 +45,11 @@
     $barContent = FilamentView::renderHook(PolderRenderHook::BREADCRUMB_BAR_CONTENT, scopes: $this->getRenderHookScopes());
     $barEnd = FilamentView::renderHook(PolderRenderHook::BREADCRUMB_BAR_END, scopes: $this->getRenderHookScopes());
     $hasEmptyMobileBar = $isMobileNavigationVisible && is_slot_empty($barContent) && is_slot_empty($barEnd);
+    $visibleActions = is_array($actions) ? array_values(array_filter($actions, fn ($action): bool => $action->isVisible())) : [];
+    $hasCompactActions = $isMobileNavigationVisible
+        && filled($visibleActions)
+        && filament()->getCurrentPanel()->getPlugin(PolderThemePlugin::ID)->getMobileNavigation()->hasCompactHeaderActions();
+    $hasHeadingRow = $showBackButton || $hasCompactActions;
 @endphp
 <div @class([
     'polder-theme-breadcrumb-bar',
@@ -87,12 +92,56 @@
         $attributes->class([
             'fi-header',
             'fi-header-has-subheading' => filled($subheading),
+            'polder-theme-compact-header' => $hasCompactActions,
+            'polder-theme-header-actions-inline' => $hasCompactActions && count($visibleActions) === 1,
+            'polder-theme-header-actions-menu' => $hasCompactActions && count($visibleActions) > 1,
         ])
     }}
+    @if ($hasCompactActions)
+        x-data="{
+            isInline: @js(count($visibleActions) === 1),
+            measure() {
+                const actions = this.$refs.actions
+                const menu = this.$refs.menu
+                const container = actions?.closest('.fi-header-actions-ctn')
+                const heading = this.$root.querySelector('.fi-header-heading')
+
+                if (! actions || ! container || window.matchMedia('(min-width: 64rem)').matches) {
+                    return
+                }
+
+                const gap = parseFloat(getComputedStyle(container).columnGap) || 0
+                const actionsWidth = actions.getBoundingClientRect().width
+                const menuWidth = this.isInline ? 0 : menu.getBoundingClientRect().width + gap
+                const inlineWidth = container.getBoundingClientRect().width - menuWidth + (this.isInline ? 0 : actionsWidth + gap)
+                const row = this.$root.querySelector('.polder-theme-heading-row')
+                const leadWidth = row ? row.getBoundingClientRect().width - (heading?.getBoundingClientRect().width ?? 0) : 0
+                const rowWidth = this.$root.clientWidth
+                const headingWidth = Math.min(rowWidth * 0.4, heading?.scrollWidth ?? 0)
+                const rowGap = parseFloat(getComputedStyle(this.$root).columnGap) || 0
+
+                this.isInline = (leadWidth + headingWidth + rowGap + inlineWidth) <= rowWidth
+            },
+        }"
+        x-init="
+            measure()
+            const observer = new ResizeObserver(() => measure())
+            observer.observe($el)
+            observer.observe($refs.actions)
+        "
+        x-bind:class="{
+            'polder-theme-header-actions-inline': isInline,
+            'polder-theme-header-actions-menu': ! isInline,
+        }"
+        {{-- Livewire keeps the measured mode: a server render must not reset it --}}
+        wire:ignore.self
+    @endif
 >
     @capture($headingContent)
-        @if ($showBackButton)
+        @if ($hasHeadingRow)
             <div class="polder-theme-heading-row">
+        @endif
+        @if ($showBackButton)
                 <x-filament::icon-button
                     tag="a"
                     :href="$backUrl"
@@ -115,7 +164,7 @@
 
         {{ FilamentView::renderHook(PanelsRenderHook::PAGE_HEADER_HEADING_AFTER, scopes: $this->getRenderHookScopes()) }}
 
-        @if ($showBackButton)
+        @if ($hasHeadingRow)
             </div>
         @endif
 
@@ -131,7 +180,7 @@
     @endphp
 
     @if (! is_slot_empty($headingContent))
-        <div>{{ $headingContent }}</div>
+        <div @class(['polder-theme-header-heading' => $hasCompactActions])>{{ $headingContent }}</div>
     @else
         {{ $headingContent }}
     @endif
@@ -149,10 +198,33 @@
                 :actions="$actions"
                 :alignment="$actionsAlignment"
                 :wire:key="is_array($actions) ? $this->getId() . '.header-actions.' . md5(serialize($getVisibleActionNames($actions))) : null"
+                :x-ref="$hasCompactActions ? 'actions' : null"
             />
         @endif
 
         {{ $afterActions }}
+
+        @if ($hasCompactActions)
+            {{-- The menu shows the same page actions: copies without key bindings, so that a click or a key mounts the action of the page one time --}}
+            <div
+                class="polder-theme-header-actions-menu-trigger"
+                x-ref="menu"
+                wire:key="{{ $this->getId() }}.header-actions-menu.{{ md5(serialize($getVisibleActionNames($actions))) }}"
+            >
+                {{
+                    ActionGroup::make(array_map(
+                        fn (Action | ActionGroup $action): Action | ActionGroup => $action instanceof Action
+                            ? (clone $action)->keyBindings(null)
+                            : clone $action,
+                        $visibleActions,
+                    ))
+                        ->label(__('polder::mobile-navigation.actions'))
+                        ->icon(Heroicon::EllipsisVertical)
+                        ->color('gray')
+                        ->dropdownPlacement('bottom-end')
+                }}
+            </div>
+        @endif
     @endcapture
 
     @php

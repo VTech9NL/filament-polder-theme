@@ -29,6 +29,8 @@ class MobileNavigation
 
     protected bool|Closure $hasBackButton = true;
 
+    protected bool|Closure $hasCompactHeaderActions = true;
+
     public static function make(): static
     {
         return app(static::class);
@@ -78,6 +80,18 @@ class MobileNavigation
         $this->hasBackButton = $condition;
 
         return $this;
+    }
+
+    public function compactHeaderActions(bool|Closure $condition = true): static
+    {
+        $this->hasCompactHeaderActions = $condition;
+
+        return $this;
+    }
+
+    public function hasCompactHeaderActions(): bool
+    {
+        return (bool) $this->evaluate($this->hasCompactHeaderActions);
     }
 
     public function hasBackButton(): bool
