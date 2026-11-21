@@ -27,6 +27,8 @@ class MobileNavigation
 
     protected bool|Closure $isIconsOnly = false;
 
+    protected bool|Closure $hasBackButton = true;
+
     public static function make(): static
     {
         return app(static::class);
@@ -69,6 +71,18 @@ class MobileNavigation
         $this->isIconsOnly = $condition;
 
         return $this;
+    }
+
+    public function backButton(bool|Closure $condition = true): static
+    {
+        $this->hasBackButton = $condition;
+
+        return $this;
+    }
+
+    public function hasBackButton(): bool
+    {
+        return (bool) $this->evaluate($this->hasBackButton);
     }
 
     public function isIconsOnly(): bool

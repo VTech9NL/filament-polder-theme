@@ -178,6 +178,8 @@ When the bar is visible on the current page, the breadcrumb bar hides its sideba
 
 When the mobile bar is visible, an empty breadcrumb bar hides below `lg` (or below `sm` when it contains only breadcrumbs), with safe-area spacing above the page heading.
 
+Below `lg`, pages with a heading and a visible mobile bar show a gray back arrow before the heading, except on the dashboard or panel home. It uses browser history when the referrer has the same origin and history has a previous entry; otherwise it follows the last linked breadcrumb or the panel home URL. The link also works without JavaScript. Disable it with `MobileNavigation::make()->backButton(false)`, or pass a closure with the same page context as the other bar options.
+
 ### Styles
 
 | Setting | Options |
